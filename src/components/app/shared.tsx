@@ -122,7 +122,7 @@ export function MonthYearPicker({ year, month, onChange, size = "default" }: { y
     opts.push({ y: d.getFullYear(), m: d.getMonth() + 1 });
   }
   return (
-    <Select value={`${year}-${month}`} onValueChange={(v) => { const [y, m] = v.split("-").map(Number); onChange(y, m); }}>
+    <Select value={`${year}-${month}`} onValueChange={(v) => { const [y = year, m = month] = v.split("-").map(Number); onChange(y, m); }}>
       <SelectTrigger className={cn("w-auto gap-2 bg-card", size === "sm" ? "h-8 text-xs" : "h-10")}>
         <CalendarDays className="h-4 w-4 text-muted-foreground" />
         <SelectValue />
@@ -157,7 +157,7 @@ export function ProductSelector({ products, balances, value, onChange, allowIds 
 }) {
   const list = products.filter((p) => p.is_active || allowIds.includes(p.id));
   return (
-    <Select value={value || undefined} onValueChange={onChange}>
+    <Select {...(value ? { value } : {})} onValueChange={onChange}>
       <SelectTrigger className="h-9 min-w-[160px] bg-card"><SelectValue placeholder="Chọn sản phẩm" /></SelectTrigger>
       <SelectContent>
         {list.length === 0 && <div className="p-2 text-sm text-muted-foreground">Chưa có sản phẩm</div>}

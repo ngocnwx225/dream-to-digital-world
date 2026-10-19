@@ -43,7 +43,7 @@ export function AppSidebar() {
                     <SidebarMenuItem key={it.url}>
                       <SidebarMenuButton asChild isActive={active} tooltip={it.title}
                         className="h-10 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground">
-                        <Link to={it.url} onClick={() => setOpenMobile(false)} className="flex items-center gap-3">
+                        <Link to={it.url as "/"} onClick={() => setOpenMobile(false)} className="flex items-center gap-3">
                           <it.icon className="h-[18px] w-[18px]" />
                           {!collapsed && <span>{it.title}</span>}
                         </Link>
