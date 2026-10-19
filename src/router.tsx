@@ -3,16 +3,12 @@ import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 
 export const getRouter = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false, retry: 1 } },
-  });
+  const queryClient = new QueryClient();
 
   const router = createRouter({
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
-    // Load a route's code on hover/focus so sidebar and table-row navigation feels instant.
-    defaultPreload: "intent",
     defaultPreloadStaleTime: 0,
   });
 

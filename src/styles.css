@@ -60,10 +60,7 @@
   --color-violet-soft: var(--violet-soft);
   --color-danger-soft: var(--danger-soft);
   --shadow-card: var(--shadow-card);
-  --shadow-elevated: var(--shadow-elevated);
-  --shadow-glow: var(--shadow-glow);
-  --color-primary-strong: var(--primary-strong);
-  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -76,51 +73,47 @@
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.977 0.008 260);
-  --foreground: oklch(0.25 0.055 265);
+  --background: oklch(0.98 0.006 255);
+  --foreground: oklch(0.29 0.06 260);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.25 0.055 265);
+  --card-foreground: oklch(0.29 0.06 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.25 0.055 265);
-  /* Electric blue brand: primary for fills/text, primary-strong for the deep end of gradients. */
-  --primary: oklch(0.565 0.235 264);
-  --primary-strong: oklch(0.48 0.25 270);
+  --popover-foreground: oklch(0.29 0.06 260);
+  --primary: oklch(0.546 0.215 262.9);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0.016 260);
-  --secondary-foreground: oklch(0.25 0.055 265);
-  --muted: oklch(0.966 0.01 260);
-  --muted-foreground: oklch(0.54 0.035 262);
-  --accent: oklch(0.955 0.03 262);
-  --accent-foreground: oklch(0.47 0.22 266);
+  --secondary: oklch(0.96 0.015 255);
+  --secondary-foreground: oklch(0.29 0.06 260);
+  --muted: oklch(0.965 0.01 255);
+  --muted-foreground: oklch(0.554 0.035 257);
+  --accent: oklch(0.955 0.025 258);
+  --accent-foreground: oklch(0.45 0.18 262);
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
   --success: oklch(0.6 0.15 155);
   --success-soft: oklch(0.96 0.04 155);
-  --info-soft: oklch(0.95 0.04 262);
+  --info-soft: oklch(0.95 0.035 258);
   --warning: oklch(0.7 0.17 55);
   --warning-soft: oklch(0.96 0.04 60);
   --violet: oklch(0.58 0.2 290);
   --violet-soft: oklch(0.95 0.035 290);
   --danger-soft: oklch(0.97 0.025 20);
-  --border: oklch(0.93 0.016 260);
-  --input: oklch(0.9 0.02 260);
-  --ring: oklch(0.565 0.235 264);
-  --chart-1: oklch(0.565 0.235 264);
+  --border: oklch(0.935 0.015 250);
+  --input: oklch(0.91 0.018 250);
+  --ring: oklch(0.546 0.215 262.9);
+  --chart-1: oklch(0.6 0.2 260);
   --chart-2: oklch(0.75 0.15 70);
   --chart-3: oklch(0.6 0.18 290);
   --chart-4: oklch(0.68 0.12 175);
   --chart-5: oklch(0.55 0.08 260);
-  --sidebar: oklch(0.2 0.055 266);
-  --sidebar-foreground: oklch(0.86 0.025 262);
-  --sidebar-primary: oklch(0.565 0.235 264);
+  --sidebar: oklch(0.27 0.07 260);
+  --sidebar-foreground: oklch(0.9 0.02 255);
+  --sidebar-primary: oklch(0.546 0.215 262.9);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.27 0.06 266);
+  --sidebar-accent: oklch(0.33 0.07 260);
   --sidebar-accent-foreground: oklch(0.99 0 0);
-  --sidebar-border: oklch(0.29 0.05 266);
-  --sidebar-ring: oklch(0.565 0.235 264);
-  --shadow-card: 0 1px 2px oklch(0.25 0.055 265 / 0.04), 0 6px 20px -4px oklch(0.25 0.055 265 / 0.06);
-  --shadow-elevated: 0 2px 4px oklch(0.25 0.055 265 / 0.05), 0 16px 36px -10px oklch(0.25 0.055 265 / 0.14);
-  --shadow-glow: 0 6px 18px -6px oklch(0.565 0.235 264 / 0.55);
+  --sidebar-border: oklch(0.34 0.06 260);
+  --sidebar-ring: oklch(0.546 0.215 262.9);
+  --shadow-card: 0 1px 2px oklch(0.29 0.06 260 / 0.04), 0 4px 16px oklch(0.29 0.06 260 / 0.04);
 }
 
 @layer base {
@@ -135,34 +128,12 @@
 }
 
 @layer base {
-  body { font-family: var(--font-sans); font-feature-settings: "tnum" 0; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
-  h1, h2, h3 { letter-spacing: -0.015em; }
-  ::selection { background: oklch(0.565 0.235 264 / 0.18); }
+  body { font-family: var(--font-sans); font-feature-settings: "tnum" 0; -webkit-font-smoothing: antialiased; }
 }
 @utility card-surface {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 0.875rem;
   box-shadow: var(--shadow-card);
 }
-/* Brand fill for primary buttons, logo marks and the active nav item. */
-@utility bg-brand {
-  background-image: linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%);
-}
-@utility text-brand {
-  background-image: linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-}
 @utility num { font-variant-numeric: tabular-nums; }
-
-/* Soft page entrance on navigation; skipped for users who prefer reduced motion. */
-@keyframes page-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: none; }
-}
-@utility animate-page-in {
-  animation: page-in 220ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  @media (prefers-reduced-motion: reduce) { animation: none; }
-}

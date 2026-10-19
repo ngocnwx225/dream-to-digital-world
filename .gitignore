@@ -30,7 +30,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# Local data and npm lockfile (project uses bun.lock)
-*.xlsx
-package-lock.json
