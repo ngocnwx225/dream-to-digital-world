@@ -10,33 +10,250 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppImportExcelRouteImport } from './routes/_app/import-excel'
+import { Route as AppInventoryRouteImport } from './routes/_app/inventory'
+import { Route as AppProductsRouteImport } from './routes/_app/products'
+import { Route as AppReportsRouteImport } from './routes/_app/reports'
+import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppCustomersIndexRouteImport } from './routes/_app/customers/index'
+import { Route as AppCustomersIdRouteImport } from './routes/_app/customers/$id'
+import { Route as AppPurchasesIndexRouteImport } from './routes/_app/purchases/index'
+import { Route as AppPurchasesIdRouteImport } from './routes/_app/purchases/$id'
+import { Route as AppPurchasesNewRouteImport } from './routes/_app/purchases/new'
+import { Route as AppSalesIndexRouteImport } from './routes/_app/sales/index'
+import { Route as AppSalesIdRouteImport } from './routes/_app/sales/$id'
+import { Route as AppSalesNewRouteImport } from './routes/_app/sales/new'
+import { Route as AppPurchasesEditIdRouteImport } from './routes/_app/purchases/edit.$id'
+import { Route as AppSalesEditIdRouteImport } from './routes/_app/sales/edit.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppImportExcelRoute = AppImportExcelRouteImport.update({
+  id: '/import-excel',
+  path: '/import-excel',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInventoryRoute = AppInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProductsRoute = AppProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsRoute = AppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCustomersIndexRoute = AppCustomersIndexRouteImport.update({
+  id: '/customers/',
+  path: '/customers/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCustomersIdRoute = AppCustomersIdRouteImport.update({
+  id: '/customers/$id',
+  path: '/customers/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPurchasesIndexRoute = AppPurchasesIndexRouteImport.update({
+  id: '/purchases/',
+  path: '/purchases/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPurchasesIdRoute = AppPurchasesIdRouteImport.update({
+  id: '/purchases/$id',
+  path: '/purchases/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPurchasesNewRoute = AppPurchasesNewRouteImport.update({
+  id: '/purchases/new',
+  path: '/purchases/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSalesIndexRoute = AppSalesIndexRouteImport.update({
+  id: '/sales/',
+  path: '/sales/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSalesIdRoute = AppSalesIdRouteImport.update({
+  id: '/sales/$id',
+  path: '/sales/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSalesNewRoute = AppSalesNewRouteImport.update({
+  id: '/sales/new',
+  path: '/sales/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPurchasesEditIdRoute = AppPurchasesEditIdRouteImport.update({
+  id: '/purchases/edit/$id',
+  path: '/purchases/edit/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSalesEditIdRoute = AppSalesEditIdRouteImport.update({
+  id: '/sales/edit/$id',
+  path: '/sales/edit/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/import-excel': typeof AppImportExcelRoute
+  '/inventory': typeof AppInventoryRoute
+  '/products': typeof AppProductsRoute
+  '/reports': typeof AppReportsRoute
+  '/settings': typeof AppSettingsRoute
+  '/customers/$id': typeof AppCustomersIdRoute
+  '/purchases/$id': typeof AppPurchasesIdRoute
+  '/purchases/new': typeof AppPurchasesNewRoute
+  '/sales/$id': typeof AppSalesIdRoute
+  '/sales/new': typeof AppSalesNewRoute
+  '/customers/': typeof AppCustomersIndexRoute
+  '/purchases/': typeof AppPurchasesIndexRoute
+  '/sales/': typeof AppSalesIndexRoute
+  '/purchases/edit/$id': typeof AppPurchasesEditIdRoute
+  '/sales/edit/$id': typeof AppSalesEditIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/import-excel': typeof AppImportExcelRoute
+  '/inventory': typeof AppInventoryRoute
+  '/products': typeof AppProductsRoute
+  '/reports': typeof AppReportsRoute
+  '/settings': typeof AppSettingsRoute
+  '/customers/$id': typeof AppCustomersIdRoute
+  '/purchases/$id': typeof AppPurchasesIdRoute
+  '/purchases/new': typeof AppPurchasesNewRoute
+  '/sales/$id': typeof AppSalesIdRoute
+  '/sales/new': typeof AppSalesNewRoute
+  '/customers': typeof AppCustomersIndexRoute
+  '/purchases': typeof AppPurchasesIndexRoute
+  '/sales': typeof AppSalesIndexRoute
+  '/purchases/edit/$id': typeof AppPurchasesEditIdRoute
+  '/sales/edit/$id': typeof AppSalesEditIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_app': typeof AppRouteWithChildren
+  '/login': typeof LoginRoute
+  '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/import-excel': typeof AppImportExcelRoute
+  '/_app/inventory': typeof AppInventoryRoute
+  '/_app/products': typeof AppProductsRoute
+  '/_app/reports': typeof AppReportsRoute
+  '/_app/settings': typeof AppSettingsRoute
+  '/_app/customers/$id': typeof AppCustomersIdRoute
+  '/_app/purchases/$id': typeof AppPurchasesIdRoute
+  '/_app/purchases/new': typeof AppPurchasesNewRoute
+  '/_app/sales/$id': typeof AppSalesIdRoute
+  '/_app/sales/new': typeof AppSalesNewRoute
+  '/_app/customers/': typeof AppCustomersIndexRoute
+  '/_app/purchases/': typeof AppPurchasesIndexRoute
+  '/_app/sales/': typeof AppSalesIndexRoute
+  '/_app/purchases/edit/$id': typeof AppPurchasesEditIdRoute
+  '/_app/sales/edit/$id': typeof AppSalesEditIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/dashboard'
+    | '/import-excel'
+    | '/inventory'
+    | '/products'
+    | '/reports'
+    | '/settings'
+    | '/customers/$id'
+    | '/purchases/$id'
+    | '/purchases/new'
+    | '/sales/$id'
+    | '/sales/new'
+    | '/customers/'
+    | '/purchases/'
+    | '/sales/'
+    | '/purchases/edit/$id'
+    | '/sales/edit/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/dashboard'
+    | '/import-excel'
+    | '/inventory'
+    | '/products'
+    | '/reports'
+    | '/settings'
+    | '/customers/$id'
+    | '/purchases/$id'
+    | '/purchases/new'
+    | '/sales/$id'
+    | '/sales/new'
+    | '/customers'
+    | '/purchases'
+    | '/sales'
+    | '/purchases/edit/$id'
+    | '/sales/edit/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/login'
+    | '/_app/dashboard'
+    | '/_app/import-excel'
+    | '/_app/inventory'
+    | '/_app/products'
+    | '/_app/reports'
+    | '/_app/settings'
+    | '/_app/customers/$id'
+    | '/_app/purchases/$id'
+    | '/_app/purchases/new'
+    | '/_app/sales/$id'
+    | '/_app/sales/new'
+    | '/_app/customers/'
+    | '/_app/purchases/'
+    | '/_app/sales/'
+    | '/_app/purchases/edit/$id'
+    | '/_app/sales/edit/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +265,179 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/import-excel': {
+      id: '/_app/import-excel'
+      path: '/import-excel'
+      fullPath: '/import-excel'
+      preLoaderRoute: typeof AppImportExcelRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inventory': {
+      id: '/_app/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AppInventoryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/products': {
+      id: '/_app/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof AppProductsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reports': {
+      id: '/_app/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/customers/': {
+      id: '/_app/customers/'
+      path: '/customers'
+      fullPath: '/customers/'
+      preLoaderRoute: typeof AppCustomersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/customers/$id': {
+      id: '/_app/customers/$id'
+      path: '/customers/$id'
+      fullPath: '/customers/$id'
+      preLoaderRoute: typeof AppCustomersIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/purchases/': {
+      id: '/_app/purchases/'
+      path: '/purchases'
+      fullPath: '/purchases/'
+      preLoaderRoute: typeof AppPurchasesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/purchases/$id': {
+      id: '/_app/purchases/$id'
+      path: '/purchases/$id'
+      fullPath: '/purchases/$id'
+      preLoaderRoute: typeof AppPurchasesIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/purchases/new': {
+      id: '/_app/purchases/new'
+      path: '/purchases/new'
+      fullPath: '/purchases/new'
+      preLoaderRoute: typeof AppPurchasesNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/sales/': {
+      id: '/_app/sales/'
+      path: '/sales'
+      fullPath: '/sales/'
+      preLoaderRoute: typeof AppSalesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/sales/$id': {
+      id: '/_app/sales/$id'
+      path: '/sales/$id'
+      fullPath: '/sales/$id'
+      preLoaderRoute: typeof AppSalesIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/sales/new': {
+      id: '/_app/sales/new'
+      path: '/sales/new'
+      fullPath: '/sales/new'
+      preLoaderRoute: typeof AppSalesNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/purchases/edit/$id': {
+      id: '/_app/purchases/edit/$id'
+      path: '/purchases/edit/$id'
+      fullPath: '/purchases/edit/$id'
+      preLoaderRoute: typeof AppPurchasesEditIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/sales/edit/$id': {
+      id: '/_app/sales/edit/$id'
+      path: '/sales/edit/$id'
+      fullPath: '/sales/edit/$id'
+      preLoaderRoute: typeof AppSalesEditIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppDashboardRoute: typeof AppDashboardRoute
+  AppImportExcelRoute: typeof AppImportExcelRoute
+  AppInventoryRoute: typeof AppInventoryRoute
+  AppProductsRoute: typeof AppProductsRoute
+  AppReportsRoute: typeof AppReportsRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppCustomersIdRoute: typeof AppCustomersIdRoute
+  AppPurchasesIdRoute: typeof AppPurchasesIdRoute
+  AppPurchasesNewRoute: typeof AppPurchasesNewRoute
+  AppSalesIdRoute: typeof AppSalesIdRoute
+  AppSalesNewRoute: typeof AppSalesNewRoute
+  AppCustomersIndexRoute: typeof AppCustomersIndexRoute
+  AppPurchasesIndexRoute: typeof AppPurchasesIndexRoute
+  AppSalesIndexRoute: typeof AppSalesIndexRoute
+  AppPurchasesEditIdRoute: typeof AppPurchasesEditIdRoute
+  AppSalesEditIdRoute: typeof AppSalesEditIdRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppDashboardRoute: AppDashboardRoute,
+  AppImportExcelRoute: AppImportExcelRoute,
+  AppInventoryRoute: AppInventoryRoute,
+  AppProductsRoute: AppProductsRoute,
+  AppReportsRoute: AppReportsRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppCustomersIdRoute: AppCustomersIdRoute,
+  AppPurchasesIdRoute: AppPurchasesIdRoute,
+  AppPurchasesNewRoute: AppPurchasesNewRoute,
+  AppSalesIdRoute: AppSalesIdRoute,
+  AppSalesNewRoute: AppSalesNewRoute,
+  AppCustomersIndexRoute: AppCustomersIndexRoute,
+  AppPurchasesIndexRoute: AppPurchasesIndexRoute,
+  AppSalesIndexRoute: AppSalesIndexRoute,
+  AppPurchasesEditIdRoute: AppPurchasesEditIdRoute,
+  AppSalesEditIdRoute: AppSalesEditIdRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
