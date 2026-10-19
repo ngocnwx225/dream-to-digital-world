@@ -40,15 +40,15 @@ export function AppSidebar() {
                 {g.items.map((it) => {
                   const active = path === it.url || path.startsWith(it.url + "/");
                   return (
-                    <SidebarMenuButton key={it.url} asChild isActive={active} tooltip={it.title}
-                      className="h-10 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground">
-                      <SidebarMenuItem>
+                    <SidebarMenuItem key={it.url}>
+                      <SidebarMenuButton asChild isActive={active} tooltip={it.title}
+                        className="h-10 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground">
                         <Link to={it.url} onClick={() => setOpenMobile(false)} className="flex items-center gap-3">
                           <it.icon className="h-[18px] w-[18px]" />
                           {!collapsed && <span>{it.title}</span>}
                         </Link>
-                      </SidebarMenuItem>
-                    </SidebarMenuButton>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
                   );
                 })}
               </SidebarMenu>
