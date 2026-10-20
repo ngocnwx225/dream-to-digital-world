@@ -423,6 +423,8 @@ export type Database = {
         Row: {
           cancel_reason: string | null
           code: string
+          consumable_total_cost: number
+          consumable_unit_cost: number | null
           created_at: string
           customer_id: string | null
           customer_name: string | null
@@ -436,11 +438,14 @@ export type Database = {
           total_cost: number
           total_qty: number
           updated_at: string
+          vehicle_count: number | null
           vehicle_name: string | null
         }
         Insert: {
           cancel_reason?: string | null
           code?: string
+          consumable_total_cost?: number
+          consumable_unit_cost?: number | null
           created_at?: string
           customer_id?: string | null
           customer_name?: string | null
@@ -454,11 +459,14 @@ export type Database = {
           total_cost?: number
           total_qty?: number
           updated_at?: string
+          vehicle_count?: number | null
           vehicle_name?: string | null
         }
         Update: {
           cancel_reason?: string | null
           code?: string
+          consumable_total_cost?: number
+          consumable_unit_cost?: number | null
           created_at?: string
           customer_id?: string | null
           customer_name?: string | null
@@ -472,6 +480,7 @@ export type Database = {
           total_cost?: number
           total_qty?: number
           updated_at?: string
+          vehicle_count?: number | null
           vehicle_name?: string | null
         }
         Relationships: [
@@ -486,6 +495,7 @@ export type Database = {
       }
       settings: {
         Row: {
+          consumable_cost_per_vehicle: number
           created_at: string
           default_low_stock: number
           id: number
@@ -493,6 +503,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          consumable_cost_per_vehicle?: number
           created_at?: string
           default_low_stock?: number
           id?: number
@@ -500,6 +511,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          consumable_cost_per_vehicle?: number
           created_at?: string
           default_low_stock?: number
           id?: number
@@ -574,6 +586,7 @@ export type Database = {
           p_items: Json
           p_note: string
           p_save_customer: boolean
+          p_vehicle_count?: number
         }
         Returns: string
       }
