@@ -8,6 +8,13 @@
       "when": 1792398724575,
       "tag": "0000_storeflow_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792475032762,
+      "tag": "0001_storeflow_consumable_cost_and_refresh_sales_totals",
+      "breakpoints": true
     }
   ]
 }
