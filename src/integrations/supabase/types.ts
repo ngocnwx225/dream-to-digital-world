@@ -495,26 +495,32 @@ export type Database = {
       }
       settings: {
         Row: {
+          brand_color: string | null
           consumable_cost_per_vehicle: number
           created_at: string
           default_low_stock: number
           id: number
+          logo_url: string | null
           store_name: string
           updated_at: string
         }
         Insert: {
+          brand_color?: string | null
           consumable_cost_per_vehicle?: number
           created_at?: string
           default_low_stock?: number
           id?: number
+          logo_url?: string | null
           store_name?: string
           updated_at?: string
         }
         Update: {
+          brand_color?: string | null
           consumable_cost_per_vehicle?: number
           created_at?: string
           default_low_stock?: number
           id?: number
+          logo_url?: string | null
           store_name?: string
           updated_at?: string
         }
