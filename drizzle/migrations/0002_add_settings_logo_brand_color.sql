@@ -1,0 +1,1 @@
+alter table public.settings add column if not exists logo_url text, add column if not exists brand_color text check (brand_color is null or brand_color ~* '^#[0-9a-f]{6}$');

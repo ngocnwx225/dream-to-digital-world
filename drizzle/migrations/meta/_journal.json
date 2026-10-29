@@ -15,6 +15,13 @@
       "when": 1792475032762,
       "tag": "0001_storeflow_consumable_cost_and_refresh_sales_totals",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793247530236,
+      "tag": "0002_add_settings_logo_brand_color",
+      "breakpoints": true
     }
   ]
 }
