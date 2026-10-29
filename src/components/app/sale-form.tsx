@@ -16,7 +16,7 @@ import { errMsg, fmtMoney, fmtNum, MONEY_UNIT, todayISO } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { CurrencyInput, Field, QuantityInput } from "./inputs";
 import { CustomerSelector, ProductSelector } from "./selectors";
-import { Card, th, theadRow } from "./shared";
+import { Card, CellLabel, FormActions, lineHead, lineRemove, lineRow, th } from "./shared";
 
 const lineSchema = z.object({
   product_id: z.string().min(1, "Chọn sản phẩm"),
@@ -45,6 +45,8 @@ export type SaleFormValues = z.infer<typeof schema>;
 type Line = SaleFormValues["items"][number];
 
 const emptyLine = (): Line => ({ product_id: "", unit_price: "", quantity: "" });
+/** Column template for the table-like layout of the line editor (container ≥ 48rem). */
+const LINE_COLS = "@3xl:grid-cols-[2.25rem_minmax(11rem,1fr)_9.5rem_6rem_7rem_8rem_2.75rem]";
 
 export function saleDefaults(o?: SaleOrderDetail): SaleFormValues {
   if (!o) {
@@ -148,17 +150,17 @@ export function SaleForm({ id, code, defaults, storedRate = null }: {
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
       <Card title="Thông tin khách hàng">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Field label="Mã đơn"><Input value={code ?? "Tự động tạo khi lưu"} disabled className="h-9" /></Field>
           <Field label="Ngày bán" htmlFor="order_date" required error={errors.order_date?.message}>
             <Input id="order_date" type="date" className="h-9" {...form.register("order_date")} />
           </Field>
-          <Field label="Loại khách">
+          <Field label="Loại khách" className="sm:col-span-2 lg:col-span-1">
             <div role="radiogroup" className="flex rounded-lg border border-border bg-muted/50 p-0.5">
               {MODES.map((m) => (
                 <button key={m.value} type="button" role="radio" aria-checked={mode === m.value}
                   onClick={() => { form.setValue("mode", m.value); if (m.value !== "existing") form.setValue("customer_id", ""); }}
-                  className={cn("flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors sm:text-sm",
+                  className={cn("min-h-8 flex-1 rounded-md px-1.5 py-1.5 text-xs font-medium leading-tight transition-colors pointer-coarse:min-h-10 sm:text-sm",
                     mode === m.value ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}>
                   {m.label}
                 </button>
@@ -167,7 +169,7 @@ export function SaleForm({ id, code, defaults, storedRate = null }: {
           </Field>
 
           {mode === "existing" && (
-            <Field label="Khách hàng" required error={errors.customer_id?.message} className="md:col-span-3">
+            <Field label="Khách hàng" required error={errors.customer_id?.message} className="sm:col-span-2 lg:col-span-3">
               <Controller control={form.control} name="customer_id" render={({ field }) => (
                 <CustomerSelector customers={customers} value={field.value} invalid={!!errors.customer_id}
                   onChange={(c) => {
@@ -195,11 +197,11 @@ export function SaleForm({ id, code, defaults, storedRate = null }: {
           <Field label="Tên xe" htmlFor="vehicle_name">
             <Input id="vehicle_name" className="h-9" placeholder="VD: Honda Vision" {...form.register("vehicle_name")} />
           </Field>
-          <Field label="Ghi chú" htmlFor="note" className="md:col-span-2">
+          <Field label="Ghi chú" htmlFor="note" className="sm:col-span-2">
             <Input id="note" className="h-9" {...form.register("note")} />
           </Field>
           {mode === "new" && (
-            <div className="flex items-center gap-2 md:col-span-3">
+            <div className="flex items-center gap-2 sm:col-span-2 lg:col-span-3">
               <Controller control={form.control} name="save_customer" render={({ field }) => (
                 <Checkbox id="save_customer" checked={field.value} onCheckedChange={(c) => field.onChange(c === true)} />
               )} />
@@ -210,66 +212,70 @@ export function SaleForm({ id, code, defaults, storedRate = null }: {
       </Card>
 
       <Card title="Sản phẩm" action={<span className="text-xs text-muted-foreground">Đơn vị tiền: {MONEY_UNIT}</span>}>
-        <div className="-mx-1 overflow-x-auto px-1">
-          <table className="w-full min-w-[760px]">
-            <thead>
-              <tr className={theadRow}>
-                <th className={cn(th, "w-10")}>#</th>
-                <th className={th}>Sản phẩm</th>
-                <th className={cn(th, "w-[160px] text-right")}>Giá bán</th>
-                <th className={cn(th, "w-[100px] text-right")}>Tồn hiện tại</th>
-                <th className={cn(th, "w-[120px] text-right")}>Số lượng</th>
-                <th className={cn(th, "w-[140px] text-right")}>Thành tiền</th>
-                <th className={cn(th, "w-12")} />
-              </tr>
-            </thead>
-            <tbody>
-              {fields.map((f, i) => {
-                const e = errors.items?.[i];
-                const line = items[i] ?? emptyLine();
-                const isShort = short(line.product_id);
-                return (
-                  <tr key={f.id} className="border-t border-border align-top">
-                    <td className="px-3 py-2.5 text-sm text-muted-foreground">{i + 1}</td>
-                    <td className="px-2 py-2">
-                      <ProductSelector products={products} balances={balances} showStock value={line.product_id} keepIds={keepIds} invalid={!!e?.product_id}
-                        onChange={(pid) => {
-                          form.setValue(`items.${i}.product_id`, pid, opts);
-                          const p = products.find((x) => x.id === pid);
-                          if (p) form.setValue(`items.${i}.unit_price`, toInputString(p.sale_price, 3), opts);
-                        }} />
-                      {e?.product_id && <p className="mt-1 text-xs text-destructive">{e.product_id.message}</p>}
-                    </td>
-                    <td className="px-2 py-2">
-                      <CurrencyInput aria-label="Giá bán" value={line.unit_price} onChange={(v) => form.setValue(`items.${i}.unit_price`, v, opts)} invalid={!!e?.unit_price} />
-                      {e?.unit_price && <p className="mt-1 text-xs text-destructive">{e.unit_price.message}</p>}
-                    </td>
-                    <td className={cn("num px-3 py-2.5 text-right text-sm", isShort ? "font-semibold text-destructive" : "text-muted-foreground")}>
-                      {line.product_id ? fmtNum(available(line.product_id)) : "—"}
-                    </td>
-                    <td className="px-2 py-2">
-                      <QuantityInput aria-label="Số lượng" value={line.quantity} onChange={(v) => form.setValue(`items.${i}.quantity`, v, opts)} invalid={!!e?.quantity || isShort} />
-                      {e?.quantity ? <p className="mt-1 text-xs text-destructive">{e.quantity.message}</p>
-                        : isShort && <p className="mt-1 text-xs text-destructive">Vượt tồn kho</p>}
-                    </td>
-                    <td className="num px-3 py-2.5 text-right text-sm font-semibold">{fmtMoney(lineTotal(line))}</td>
-                    <td className="px-2 py-2 text-right">
-                      <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-destructive"
-                        aria-label="Xóa dòng" disabled={fields.length === 1} onClick={() => remove(i)}><Trash2 className="h-4 w-4" /></Button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="@container">
+          <div className={cn(lineHead, LINE_COLS)}>
+            <span className={th}>#</span>
+            <span className={th}>Sản phẩm</span>
+            <span className={cn(th, "text-right")}>Giá bán</span>
+            <span className={cn(th, "text-right")}>Tồn hiện tại</span>
+            <span className={cn(th, "text-right")}>Số lượng</span>
+            <span className={cn(th, "text-right")}>Thành tiền</span>
+            <span />
+          </div>
+          <div className="space-y-2.5 @3xl:space-y-0">
+            {fields.map((f, i) => {
+              const e = errors.items?.[i];
+              const line = items[i] ?? emptyLine();
+              const isShort = short(line.product_id);
+              return (
+                <div key={f.id} className={cn(lineRow, LINE_COLS)}>
+                  <p className="col-span-2 pr-10 text-sm font-semibold text-muted-foreground @3xl:col-span-1 @3xl:px-3 @3xl:pt-2.5 @3xl:font-normal">
+                    <span className="@3xl:hidden">Sản phẩm </span>{i + 1}
+                  </p>
+                  <div className="col-span-2 min-w-0 @3xl:col-span-1">
+                    <ProductSelector products={products} balances={balances} showStock value={line.product_id} keepIds={keepIds} invalid={!!e?.product_id}
+                      onChange={(pid) => {
+                        form.setValue(`items.${i}.product_id`, pid, opts);
+                        const p = products.find((x) => x.id === pid);
+                        if (p) form.setValue(`items.${i}.unit_price`, toInputString(p.sale_price, 3), opts);
+                      }} />
+                    {e?.product_id && <p className="mt-1 text-xs text-destructive">{e.product_id.message}</p>}
+                  </div>
+                  <div className="min-w-0">
+                    <CellLabel className="@3xl:hidden">Giá bán</CellLabel>
+                    <CurrencyInput aria-label="Giá bán" value={line.unit_price} onChange={(v) => form.setValue(`items.${i}.unit_price`, v, opts)} invalid={!!e?.unit_price} />
+                    {e?.unit_price && <p className="mt-1 text-xs text-destructive">{e.unit_price.message}</p>}
+                  </div>
+                  <div className={cn("num text-sm @3xl:px-1 @3xl:pt-2.5 @3xl:text-right", isShort ? "font-semibold text-destructive" : "text-muted-foreground")}>
+                    <CellLabel className="@3xl:hidden">Tồn hiện tại</CellLabel>
+                    <span className="flex h-9 items-center @3xl:block @3xl:h-auto">{line.product_id ? fmtNum(available(line.product_id)) : "—"}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <CellLabel className="@3xl:hidden">Số lượng</CellLabel>
+                    <QuantityInput aria-label="Số lượng" value={line.quantity} onChange={(v) => form.setValue(`items.${i}.quantity`, v, opts)} invalid={!!e?.quantity || isShort} />
+                    {e?.quantity ? <p className="mt-1 text-xs text-destructive">{e.quantity.message}</p>
+                      : isShort && <p className="mt-1 text-xs text-destructive">Vượt tồn kho</p>}
+                  </div>
+                  <div className="num text-sm font-semibold @3xl:px-1 @3xl:pt-2.5 @3xl:text-right">
+                    <CellLabel className="font-medium @3xl:hidden">Thành tiền</CellLabel>
+                    <span className="flex h-9 items-center text-base @3xl:block @3xl:h-auto @3xl:text-sm">{fmtMoney(lineTotal(line))}</span>
+                  </div>
+                  <div className={lineRemove}>
+                    <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-destructive"
+                      aria-label={`Xóa dòng ${i + 1}`} disabled={fields.length === 1} onClick={() => remove(i)}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
         {errors.items?.root?.message && <p className="mt-2 text-sm text-destructive">{errors.items.root.message}</p>}
-        <Button type="button" variant="outline" className="mt-3" onClick={() => append(emptyLine())} disabled={isLoading}>
+        <Button type="button" variant="outline" className="mt-3 w-full border-dashed sm:w-auto" onClick={() => append(emptyLine())} disabled={isLoading}>
           <Plus className="h-4 w-4" />Thêm sản phẩm
         </Button>
 
-        <div className="mt-5 grid gap-5 border-t border-border pt-4 md:grid-cols-[1fr_minmax(300px,380px)]">
-          <Field label="Số xe" htmlFor="vehicle_count" error={errors.vehicle_count?.message} className="max-w-[260px]"
+        <div className="mt-5 grid gap-5 border-t border-border pt-4 lg:grid-cols-[1fr_minmax(300px,380px)]">
+          <Field label="Số xe" htmlFor="vehicle_count" error={errors.vehicle_count?.message} className="max-w-xs"
             hint={`Vật tư tiêu hao ${fmtMoney(rate)} ${MONEY_UNIT}/xe. Đặt 0 nếu chỉ bán phụ tùng.`}>
             <QuantityInput id="vehicle_count" value={vehiclesRaw ?? ""} invalid={!!errors.vehicle_count} className="max-w-[120px]"
               onChange={(v) => form.setValue("vehicle_count", v.replace(/\D/g, ""), opts)} />
@@ -290,12 +296,12 @@ export function SaleForm({ id, code, defaults, storedRate = null }: {
         </div>
       </Card>
 
-      <div className="flex flex-wrap justify-end gap-2">
+      <FormActions>
         <Button type="button" variant="outline" onClick={() => window.history.back()}>Hủy</Button>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}{id ? "Lưu thay đổi" : "Hoàn tất bán hàng"}
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

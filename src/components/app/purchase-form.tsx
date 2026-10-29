@@ -14,7 +14,7 @@ import { errMsg, fmtMoney, fmtNum, MONEY_UNIT, todayISO } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { CurrencyInput, Field, QuantityInput } from "./inputs";
 import { ProductSelector } from "./selectors";
-import { Card, th, theadRow } from "./shared";
+import { Card, CellLabel, FormActions, lineHead, lineRemove, lineRow, th } from "./shared";
 
 const positive = (msg: string) => z.string().refine((s) => (parseDecimal(s) ?? 0) > 0, msg);
 const lineSchema = z.object({
@@ -33,6 +33,8 @@ export type PurchaseFormValues = z.infer<typeof schema>;
 type Line = PurchaseFormValues["items"][number];
 
 const emptyLine = (): Line => ({ product_id: "", quantity: "", unit_cost: "", amount: "", driver: "amount" });
+/** Column template for the table-like layout of the line editor (container ≥ 48rem). */
+const LINE_COLS = "@3xl:grid-cols-[2.25rem_minmax(11rem,1fr)_7.5rem_10rem_10rem_2.75rem]";
 
 export function purchaseDefaults(src?: {
   receipt_date: string; note: string | null; purchase_items: { product_id: string; quantity: number; unit_cost: number; amount: number }[];
@@ -93,12 +95,12 @@ export function PurchaseForm({ id, code, defaults }: { id?: string; code?: strin
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
       <Card title="Thông tin chung">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Field label="Mã phiếu"><Input value={code ?? "Tự động tạo khi lưu"} disabled className="h-9" /></Field>
           <Field label="Ngày nhập" htmlFor="receipt_date" required error={errors.receipt_date?.message}>
             <Input id="receipt_date" type="date" className="h-9" {...form.register("receipt_date")} />
           </Field>
-          <Field label="Ghi chú" htmlFor="note" className="md:col-span-3">
+          <Field label="Ghi chú" htmlFor="note" className="sm:col-span-2 lg:col-span-3">
             <Textarea id="note" rows={2} placeholder="Nhà cung cấp, số hóa đơn..." {...form.register("note")} />
           </Field>
         </div>
@@ -106,68 +108,72 @@ export function PurchaseForm({ id, code, defaults }: { id?: string; code?: strin
 
       <Card title="Chi tiết sản phẩm" action={<span className="text-xs text-muted-foreground">Đơn vị tiền: {MONEY_UNIT}</span>}>
         <p className="mb-3 text-xs text-muted-foreground">Nhập <b>Thành tiền</b> và <b>Số lượng</b> để tự tính <b>Đơn giá nhập</b> = Thành tiền / Số lượng. Bạn cũng có thể sửa đơn giá, thành tiền sẽ tự tính lại.</p>
-        <div className="-mx-1 overflow-x-auto px-1">
-          <table className="w-full min-w-[720px]">
-            <thead>
-              <tr className={theadRow}>
-                <th className={cn(th, "w-10")}>#</th>
-                <th className={th}>Sản phẩm</th>
-                <th className={cn(th, "w-[120px] text-right")}>Số lượng</th>
-                <th className={cn(th, "w-[170px] text-right")}>Đơn giá nhập</th>
-                <th className={cn(th, "w-[170px] text-right")}>Thành tiền nhập</th>
-                <th className={cn(th, "w-12")} />
-              </tr>
-            </thead>
-            <tbody>
-              {fields.map((f, i) => {
-                const e = errors.items?.[i];
-                const line = items[i] ?? emptyLine();
-                return (
-                  <tr key={f.id} className="border-t border-border align-top">
-                    <td className="px-3 py-2.5 text-sm text-muted-foreground">{i + 1}</td>
-                    <td className="px-2 py-2">
-                      <ProductSelector products={products} value={line.product_id} keepIds={keepIds} invalid={!!e?.product_id}
-                        onChange={(pid) => form.setValue(`items.${i}.product_id`, pid, { shouldValidate: isSubmitted })} />
-                      {e?.product_id && <p className="mt-1 text-xs text-destructive">{e.product_id.message}</p>}
-                    </td>
-                    <td className="px-2 py-2">
-                      <QuantityInput aria-label="Số lượng" value={line.quantity} onChange={(v) => editLine(i, "quantity", v)} invalid={!!e?.quantity} />
-                      {e?.quantity && <p className="mt-1 text-xs text-destructive">{e.quantity.message}</p>}
-                    </td>
-                    <td className="px-2 py-2">
-                      <CurrencyInput aria-label="Đơn giá nhập" value={line.unit_cost} onChange={(v) => editLine(i, "unit_cost", v)} />
-                    </td>
-                    <td className="px-2 py-2">
-                      <CurrencyInput aria-label="Thành tiền nhập" value={line.amount} onChange={(v) => editLine(i, "amount", v)} invalid={!!e?.amount} />
-                      {e?.amount && <p className="mt-1 text-xs text-destructive">{e.amount.message}</p>}
-                    </td>
-                    <td className="px-2 py-2 text-right">
-                      <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-destructive"
-                        aria-label="Xóa dòng" disabled={fields.length === 1} onClick={() => remove(i)}><Trash2 className="h-4 w-4" /></Button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="@container">
+          <div className={cn(lineHead, LINE_COLS)}>
+            <span className={th}>#</span>
+            <span className={th}>Sản phẩm</span>
+            <span className={cn(th, "text-right")}>Số lượng</span>
+            <span className={cn(th, "text-right")}>Đơn giá nhập</span>
+            <span className={cn(th, "text-right")}>Thành tiền nhập</span>
+            <span />
+          </div>
+          <div className="space-y-2.5 @3xl:space-y-0">
+            {fields.map((f, i) => {
+              const e = errors.items?.[i];
+              const line = items[i] ?? emptyLine();
+              return (
+                <div key={f.id} className={cn(lineRow, LINE_COLS)}>
+                  <p className="col-span-2 pr-10 text-sm font-semibold text-muted-foreground @3xl:col-span-1 @3xl:px-3 @3xl:pt-2.5 @3xl:font-normal">
+                    <span className="@3xl:hidden">Sản phẩm </span>{i + 1}
+                  </p>
+                  <div className="col-span-2 min-w-0 @3xl:col-span-1">
+                    <ProductSelector products={products} value={line.product_id} keepIds={keepIds} invalid={!!e?.product_id}
+                      onChange={(pid) => form.setValue(`items.${i}.product_id`, pid, { shouldValidate: isSubmitted })} />
+                    {e?.product_id && <p className="mt-1 text-xs text-destructive">{e.product_id.message}</p>}
+                  </div>
+                  <div className="min-w-0">
+                    <CellLabel className="@3xl:hidden">Số lượng</CellLabel>
+                    <QuantityInput aria-label="Số lượng" value={line.quantity} onChange={(v) => editLine(i, "quantity", v)} invalid={!!e?.quantity} />
+                    {e?.quantity && <p className="mt-1 text-xs text-destructive">{e.quantity.message}</p>}
+                  </div>
+                  <div className="min-w-0">
+                    <CellLabel className="@3xl:hidden">Đơn giá nhập</CellLabel>
+                    <CurrencyInput aria-label="Đơn giá nhập" value={line.unit_cost} onChange={(v) => editLine(i, "unit_cost", v)} />
+                  </div>
+                  <div className="col-span-2 min-w-0 @3xl:col-span-1">
+                    <CellLabel className="@3xl:hidden">Thành tiền nhập</CellLabel>
+                    <CurrencyInput aria-label="Thành tiền nhập" value={line.amount} onChange={(v) => editLine(i, "amount", v)} invalid={!!e?.amount} />
+                    {e?.amount && <p className="mt-1 text-xs text-destructive">{e.amount.message}</p>}
+                  </div>
+                  <div className={lineRemove}>
+                    <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-destructive"
+                      aria-label={`Xóa dòng ${i + 1}`} disabled={fields.length === 1} onClick={() => remove(i)}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
         {errors.items?.root?.message && <p className="mt-2 text-sm text-destructive">{errors.items.root.message}</p>}
-        <Button type="button" variant="outline" className="mt-3" onClick={() => append(emptyLine())} disabled={isLoading}>
+        <Button type="button" variant="outline" className="mt-3 w-full border-dashed sm:w-auto" onClick={() => append(emptyLine())} disabled={isLoading}>
           <Plus className="h-4 w-4" />Thêm sản phẩm
         </Button>
 
-        <div className="mt-5 flex flex-col items-end gap-1 border-t border-border pt-4 text-sm">
-          <p className="text-muted-foreground">Tổng số lượng: <span className="num font-semibold text-foreground">{fmtNum(totalQty)}</span></p>
-          <p className="text-muted-foreground">Tổng tiền nhập: <span className="num text-xl font-bold text-foreground">{fmtMoney(totalAmount)}</span> {MONEY_UNIT}</p>
-        </div>
+        <dl className="mt-5 space-y-1.5 rounded-xl bg-muted/50 p-4 text-sm sm:ml-auto sm:max-w-sm">
+          <div className="flex items-baseline justify-between gap-3"><dt className="text-muted-foreground">Tổng số lượng</dt><dd className="num font-semibold">{fmtNum(totalQty)}</dd></div>
+          <div className="flex items-baseline justify-between gap-3">
+            <dt className="text-muted-foreground">Tổng tiền nhập</dt>
+            <dd className="text-right"><span className="num text-xl font-bold text-primary">{fmtMoney(totalAmount)}</span> <span className="text-muted-foreground">{MONEY_UNIT}</span></dd>
+          </div>
+        </dl>
       </Card>
 
-      <div className="flex flex-wrap justify-end gap-2">
+      <FormActions>
         <Button type="button" variant="outline" onClick={() => window.history.back()}>Hủy</Button>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}{id ? "Lưu thay đổi" : "Hoàn tất nhập hàng"}
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

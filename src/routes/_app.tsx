@@ -21,9 +21,16 @@ export const Route = createFileRoute("/_app")({
   component: AppLayout,
 });
 
-function sidebarCookieOpen() {
+/**
+ * Initial desktop sidebar state. A saved choice (cookie) wins; otherwise laptops and tablets
+ * (< 1280px) start icon-only so content keeps its width. Checked once at mount, no resize listener.
+ * Phones (< 768px) always use the drawer regardless of this value.
+ */
+function sidebarDefaultOpen() {
   if (typeof document === "undefined") return true;
-  return !document.cookie.split("; ").includes("sidebar_state=false");
+  const cookie = document.cookie.split("; ").find((c) => c.startsWith("sidebar_state="));
+  if (cookie) return cookie.endsWith("=true");
+  return window.matchMedia("(min-width: 1280px)").matches;
 }
 
 function AppLayout() {
@@ -44,11 +51,11 @@ function AppLayout() {
 
   return (
     <PeriodProvider>
-      <SidebarProvider defaultOpen={sidebarCookieOpen()} style={{ "--sidebar-width": "15rem" } as CSSProperties}>
+      <SidebarProvider defaultOpen={sidebarDefaultOpen()} style={{ "--sidebar-width": "15.5rem" } as CSSProperties}>
         <AppSidebar />
         <SidebarInset className="min-w-0 bg-background">
           <AppHeader />
-          <main className="mx-auto w-full max-w-[1440px] flex-1 p-4 md:p-6 lg:p-8">
+          <main className="mx-auto w-full min-w-0 max-w-[1600px] flex-1 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 sm:px-5 sm:pt-5 md:px-6 md:pt-6 lg:px-8 lg:pt-7">
             {/* Keyed by path so each page gets the entrance animation; state inside a page survives search-param changes. */}
             <div key={pathname} className="animate-page-in">
               <Outlet />

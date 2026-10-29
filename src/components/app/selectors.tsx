@@ -28,12 +28,12 @@ export function ProductSelector({ products, balances, value, onChange, keepIds =
     <Popover open={open} onOpenChange={(o) => { setOpen(o); if (!o) setQ(""); }}>
       <PopoverTrigger asChild>
         <Button type="button" variant="outline" role="combobox" aria-expanded={open} aria-invalid={invalid || undefined}
-          className={cn("h-9 w-full min-w-[180px] justify-between bg-card px-3 font-normal", !selected && "text-muted-foreground", invalid && "border-destructive", className)}>
+          className={cn("h-9 w-full min-w-0 justify-between bg-card px-3 font-normal", !selected && "text-muted-foreground", invalid && "border-destructive", className)}>
           <span className="truncate">{selected ? selected.name : "Chọn sản phẩm"}</span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[320px] p-0" align="start">
+      <PopoverContent className="w-[max(var(--radix-popover-trigger-width),min(20rem,calc(100vw-1.5rem)))] max-w-[calc(100vw-1.5rem)] p-0" align="start" collisionPadding={12}>
         <Command shouldFilter={false}>
           <CommandInput placeholder="Tìm theo tên hoặc mã..." value={q} onValueChange={setQ} />
           <CommandList>
@@ -78,7 +78,7 @@ export function CustomerSelector({ customers, value, onChange, invalid }: {
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-(--radix-popover-trigger-width) min-w-[300px] p-0" align="start">
+      <PopoverContent className="w-(--radix-popover-trigger-width) min-w-[min(300px,calc(100vw-1.5rem))] max-w-[calc(100vw-1.5rem)] p-0" align="start" collisionPadding={12}>
         <Command shouldFilter={false}>
           <CommandInput placeholder="Tên, số điện thoại, biển số..." value={q} onValueChange={setQ} />
           <CommandList>

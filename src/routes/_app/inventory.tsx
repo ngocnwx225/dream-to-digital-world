@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Card, DataTable, EmptyState, LoadingSkeleton, MetricCard, PageHeader, StatusBadge, TableWrap, td, th, theadRow, trHover, type Column } from "@/components/app/shared";
-import { CurrencyInput, Field, QuantityInput, SearchInput, matches } from "@/components/app/inputs";
+import { CurrencyInput, Field, FilterBar, QuantityInput, SearchInput, filterSelect, matches } from "@/components/app/inputs";
 import { ProductSelector } from "@/components/app/selectors";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -55,15 +55,15 @@ function InventoryPage() {
   const focus = all?.find((r) => r.product.id === focusId) ?? null;
 
   const columns: Column<Row>[] = [
-    { key: "code", header: "Mã sản phẩm", cell: (r) => <span className="font-medium text-primary">{r.product.code}</span> },
-    { key: "name", header: "Tên sản phẩm", cell: (r) => <span className="font-medium">{r.product.name}{!r.product.is_active && <span className="ml-2 text-xs text-muted-foreground">(ngừng bán)</span>}</span> },
+    { key: "code", header: "Mã sản phẩm", mobile: "title", cell: (r) => <span className="font-medium text-primary">{r.product.code}</span> },
+    { key: "name", header: "Tên sản phẩm", mobile: "title", cell: (r) => <span className="font-medium">{r.product.name}{!r.product.is_active && <span className="ml-2 text-xs text-muted-foreground">(ngừng bán)</span>}</span> },
     { key: "open", header: "Tồn đầu", align: "right", cell: (r) => <span className="num text-muted-foreground">{fmtNum(r.balance.opening_qty)}</span> },
     { key: "in", header: "Tổng nhập", align: "right", cell: (r) => <span className="num">{fmtNum(r.balance.total_in)}</span> },
     { key: "out", header: "Tổng bán", align: "right", cell: (r) => <span className="num">{fmtNum(r.balance.total_out)}</span> },
-    { key: "qty", header: "Tồn hiện tại", align: "right", cell: (r) => <span className={cn("num font-semibold", r.state === "out" && "text-destructive", r.state === "low" && "text-warning")}>{fmtNum(r.balance.quantity)} <span className="font-normal text-muted-foreground">{r.product.unit}</span></span> },
+    { key: "qty", header: "Tồn hiện tại", align: "right", mobile: "aside", cell: (r) => <span className={cn("num font-semibold", r.state === "out" && "text-destructive", r.state === "low" && "text-warning")}>{fmtNum(r.balance.quantity)} <span className="font-normal text-muted-foreground">{r.product.unit}</span></span> },
     { key: "avg", header: `Giá vốn BQ (${MONEY_UNIT_SHORT})`, align: "right", cell: (r) => <span className="num">{fmtUnitCost(r.balance.avg_cost)}</span> },
     { key: "value", header: `Giá trị tồn (${MONEY_UNIT_SHORT})`, align: "right", cell: (r) => <span className="num font-medium">{fmtMoney(r.balance.value)}</span> },
-    { key: "state", header: "Trạng thái", cell: (r) => <StatusBadge kind={r.state} /> },
+    { key: "state", header: "Trạng thái", mobile: "aside", cell: (r) => <StatusBadge kind={r.state} /> },
   ];
 
   return (
@@ -79,10 +79,10 @@ function InventoryPage() {
       </div>
 
       <Card>
-        <div className="mb-4 flex flex-wrap items-center gap-2">
+        <FilterBar>
           <SearchInput value={q} onChange={setQ} placeholder="Tìm sản phẩm..." />
           <Select value={state} onValueChange={(v) => setState(v as typeof state)}>
-            <SelectTrigger className="h-9 w-[160px] bg-card" aria-label="Lọc tình trạng"><SelectValue /></SelectTrigger>
+            <SelectTrigger className={filterSelect} aria-label="Lọc tình trạng"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tất cả</SelectItem>
               <SelectItem value="ok">Còn hàng</SelectItem>
@@ -90,8 +90,8 @@ function InventoryPage() {
               <SelectItem value="out">Hết hàng</SelectItem>
             </SelectContent>
           </Select>
-          <p className="ml-auto text-xs text-muted-foreground">Bấm vào một dòng để xem lịch sử nhập – xuất</p>
-        </div>
+          <p className="col-span-2 text-xs text-muted-foreground sm:ml-auto">Bấm vào một dòng để xem lịch sử nhập – xuất</p>
+        </FilterBar>
         <DataTable columns={columns} rows={rows} rowKey={(r) => r.product.id}
           onRowClick={(r) => void navigate({ search: { product: r.product.id } })}
           loading={products.isLoading || balances.isLoading} error={products.error ?? balances.error}

@@ -64,12 +64,12 @@ function DashboardPage() {
 
   const recentCols: Column<RecentTx>[] = [
     { key: "date", header: "Ngày giao dịch", cell: (r) => fmtDate(r.date) },
-    { key: "code", header: "Mã chứng từ", cell: (r) => <span className="font-medium text-primary">{r.code}</span> },
+    { key: "code", header: "Mã chứng từ", mobile: "title", cell: (r) => <span className="font-medium text-primary">{r.code}</span> },
     { key: "customer", header: "Khách hàng", cell: (r) => r.customer ?? <span className="text-muted-foreground">—</span> },
     { key: "products", header: "Sản phẩm", className: "max-w-[200px] truncate", cell: (r) => r.products },
     { key: "qty", header: "Số lượng", align: "right", cell: (r) => <span className="num">{fmtNum(r.qty)}</span> },
-    { key: "amount", header: `Thành tiền (${MONEY_UNIT_SHORT})`, align: "right", cell: (r) => <span className="num font-semibold">{fmtMoney(r.amount)}</span> },
-    { key: "kind", header: "Loại giao dịch", cell: (r) => <StatusBadge kind={r.kind} /> },
+    { key: "amount", header: `Thành tiền (${MONEY_UNIT_SHORT})`, align: "right", mobile: "aside", cell: (r) => <span className="num font-semibold">{fmtMoney(r.amount)}</span> },
+    { key: "kind", header: "Loại giao dịch", mobile: "aside", cell: (r) => <StatusBadge kind={r.kind} /> },
   ];
 
   return (

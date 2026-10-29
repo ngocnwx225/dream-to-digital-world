@@ -14,7 +14,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Card, ConfirmDialog, DataTable, EmptyState, PageHeader, StatusBadge, type Column } from "@/components/app/shared";
-import { CurrencyInput, Field, QuantityInput, SearchInput, matches } from "@/components/app/inputs";
+import { CurrencyInput, Field, FilterBar, QuantityInput, SearchInput, filterSelect, matches } from "@/components/app/inputs";
 import { supabase } from "@/integrations/supabase/client";
 import { lowStockOf, stockState, useBalances, useInvalidateAll, useProducts, useSettings, type Product } from "@/lib/data";
 import { parseDecimal, toInputString } from "@/lib/calc";
@@ -57,13 +57,13 @@ function ProductsPage() {
   };
 
   const columns: Column<Product>[] = [
-    { key: "code", header: "Mã sản phẩm", cell: (p) => <span className="font-medium text-primary">{p.code}</span> },
-    { key: "name", header: "Tên sản phẩm", cell: (p) => <span className="font-medium">{p.name}</span> },
+    { key: "code", header: "Mã sản phẩm", mobile: "title", cell: (p) => <span className="font-medium text-primary">{p.code}</span> },
+    { key: "name", header: "Tên sản phẩm", mobile: "title", cell: (p) => <span className="font-medium">{p.name}</span> },
     { key: "unit", header: "Đơn vị tính", cell: (p) => p.unit },
-    { key: "price", header: `Giá bán (${MONEY_UNIT_SHORT})`, align: "right", cell: (p) => <span className="num">{fmtMoney(p.sale_price)}</span> },
+    { key: "price", header: `Giá bán (${MONEY_UNIT_SHORT})`, align: "right", mobile: "aside", cell: (p) => <span className="num">{fmtMoney(p.sale_price)}</span> },
     { key: "qty", header: "Số lượng tồn", align: "right", cell: (p) => <span className="num">{fmtNum(balances?.get(p.id)?.quantity ?? 0)}</span> },
     { key: "avg", header: `Giá vốn BQ (${MONEY_UNIT_SHORT})`, align: "right", cell: (p) => <span className="num">{fmtUnitCost(balances?.get(p.id)?.avg_cost ?? 0)}</span> },
-    { key: "status", header: "Trạng thái", cell: (p) => <StatusBadge kind={p.is_active ? "active" : "inactive"} /> },
+    { key: "status", header: "Trạng thái", mobile: "aside", cell: (p) => <StatusBadge kind={p.is_active ? "active" : "inactive"} /> },
     {
       key: "actions", header: "Thao tác", align: "right",
       cell: (p) => (
@@ -86,17 +86,17 @@ function ProductsPage() {
       <PageHeader title="Sản phẩm" subtitle="Danh mục sản phẩm, giá bán hiện tại và tồn kho"
         actions={<Button onClick={() => setEditing("new")}><Plus className="h-4 w-4" />Thêm sản phẩm</Button>} />
       <Card>
-        <div className="mb-4 flex flex-wrap items-center gap-2">
+        <FilterBar>
           <SearchInput value={q} onChange={setQ} placeholder="Tìm theo tên hoặc mã..." />
           <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
-            <SelectTrigger className="h-9 w-[160px] bg-card" aria-label="Lọc trạng thái"><SelectValue /></SelectTrigger>
+            <SelectTrigger className={filterSelect} aria-label="Lọc trạng thái"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tất cả trạng thái</SelectItem>
               <SelectItem value="active">Đang bán</SelectItem>
               <SelectItem value="inactive">Ngừng bán</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </FilterBar>
         <DataTable columns={columns} rows={rows} rowKey={(p) => p.id} onRowClick={setViewing}
           loading={products.isLoading} error={products.error} onRetry={() => void products.refetch()}
           empty={<EmptyState title={q || status !== "all" ? "Không có sản phẩm phù hợp" : "Chưa có sản phẩm"}

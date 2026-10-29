@@ -59,15 +59,27 @@ export function QuantityInput({ value, onChange, invalid, className, ...rest }: 
   );
 }
 
+/**
+ * Toolbar for list filters. Phones: search and date range take full rows, selects pair up two per row.
+ * From sm up: one wrapping row where every control keeps its natural width (nothing gets clipped).
+ */
+export function FilterBar({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={cn("mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center", className)}>{children}</div>;
+}
+
+/** Width for a filter Select inside FilterBar: fills its cell on phones, sizes to its label from sm up. */
+export const filterSelect = "h-9 w-full gap-2 bg-card sm:w-auto sm:min-w-[10rem]";
+
 export function SearchInput({ value, onChange, placeholder = "Tìm kiếm...", className }: {
   value: string; onChange: (v: string) => void; placeholder?: string; className?: string;
 }) {
   return (
-    <div className={cn("relative w-full sm:w-64", className)}>
+    <div className={cn("relative col-span-2 w-full sm:w-72", className)}>
       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-      <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="h-9 bg-card pl-9 pr-8" />
+      <Input type="search" enterKeyHint="search" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+        className="h-9 bg-card pl-9 pr-9 [&::-webkit-search-cancel-button]:hidden" />
       {value && (
-        <button type="button" aria-label="Xóa tìm kiếm" onClick={() => onChange("")} className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground">
+        <button type="button" aria-label="Xóa tìm kiếm" onClick={() => onChange("")} className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:text-foreground">
           <X className="h-3.5 w-3.5" />
         </button>
       )}
@@ -76,13 +88,15 @@ export function SearchInput({ value, onChange, placeholder = "Tìm kiếm...", c
 }
 
 export function DateRangeFilter({ from, to, onChange }: { from: string; to: string; onChange: (from: string, to: string) => void }) {
+  // Native date inputs need room for "dd/mm/yyyy" plus the picker icon; 10rem fits Be Vietnam Pro without clipping.
+  const date = "h-9 min-w-0 flex-1 bg-card pr-2 text-sm sm:w-40 sm:flex-none";
   return (
-    <div className="flex items-center gap-1.5">
-      <Input type="date" aria-label="Từ ngày" value={from} max={to || undefined} onChange={(e) => onChange(e.target.value, to)} className="h-9 w-[140px] bg-card text-sm" />
-      <span className="text-sm text-muted-foreground">–</span>
-      <Input type="date" aria-label="Đến ngày" value={to} min={from || undefined} onChange={(e) => onChange(from, e.target.value)} className="h-9 w-[140px] bg-card text-sm" />
+    <div className="col-span-2 flex min-w-0 items-center gap-1.5">
+      <Input type="date" aria-label="Từ ngày" value={from} max={to || undefined} onChange={(e) => onChange(e.target.value, to)} className={date} />
+      <span className="shrink-0 text-sm text-muted-foreground">–</span>
+      <Input type="date" aria-label="Đến ngày" value={to} min={from || undefined} onChange={(e) => onChange(from, e.target.value)} className={date} />
       {(from || to) && (
-        <button type="button" aria-label="Xóa khoảng ngày" onClick={() => onChange("", "")} className="rounded p-1 text-muted-foreground hover:text-foreground">
+        <button type="button" aria-label="Xóa khoảng ngày" onClick={() => onChange("", "")} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground">
           <X className="h-4 w-4" />
         </button>
       )}

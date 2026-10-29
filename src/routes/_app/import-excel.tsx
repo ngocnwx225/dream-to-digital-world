@@ -236,7 +236,7 @@ function ImportExcelPage() {
                         <td className={cn(td, "num text-right")}>{fmtMoney(p.row.amount)}</td>
                         <td className={cn(td, "num text-right text-muted-foreground")}>{fmtUnitCost(purchaseUnit(p.row))}</td>
                         <td className="px-2 py-2"><Input type="date" value={p.date} onChange={(e) => setP(i, { date: e.target.value })}
-                          className={cn("h-8 w-[150px] bg-card text-sm", p.include && !p.date && "border-destructive")} /></td>
+                          className={cn("h-8 w-40 bg-card text-sm", p.include && !p.date && "border-destructive")} /></td>
                         <td className={cn(td, "whitespace-normal text-xs text-warning")}>{notes.join(" · ")}</td>
                       </tr>
                     );
@@ -278,7 +278,7 @@ function ImportExcelPage() {
                         <td className="px-2 py-2"><Input value={s.vehicles} inputMode="numeric" onChange={(e) => setS(i, { vehicles: e.target.value.replace(/\D/g, "") })}
                           className={cn("h-8 w-[64px] bg-card text-right text-sm", s.include && !/^\d{1,3}$/.test(s.vehicles) && "border-destructive")} /></td>
                         <td className="px-2 py-2"><Input type="date" value={s.date} onChange={(e) => setS(i, { date: e.target.value })}
-                          className={cn("h-8 w-[150px] bg-card text-sm", s.include && !s.date && "border-destructive")} /></td>
+                          className={cn("h-8 w-40 bg-card text-sm", s.include && !s.date && "border-destructive")} /></td>
                         <td className={cn(td, "whitespace-normal text-xs text-warning")}>{notes.join(" · ")}</td>
                       </tr>
                     );
@@ -301,9 +301,9 @@ function ImportExcelPage() {
                     <p className="mb-2 font-medium">Giá bán hiện tại cho sản phẩm mới</p>
                     <div className="space-y-2">
                       {newProducts.map((p) => (
-                        <div key={p.key} className="flex items-center gap-3">
-                          <span className="min-w-[120px]">{p.name}</span>
-                          <CurrencyInput value={p.price} onChange={(v) => setPrices((x) => ({ ...x, [p.key]: v }))} className="w-[180px]" aria-label={`Giá bán ${p.name}`} />
+                        <div key={p.key} className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span className="min-w-0 flex-1 basis-32">{p.name}</span>
+                          <CurrencyInput value={p.price} onChange={(v) => setPrices((x) => ({ ...x, [p.key]: v }))} className="w-full sm:w-[180px]" aria-label={`Giá bán ${p.name}`} />
                         </div>
                       ))}
                     </div>

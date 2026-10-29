@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Card, DataTable, EmptyState, PageHeader, ReasonDialog, StatusBadge, type Column } from "@/components/app/shared";
-import { DateRangeFilter, SearchInput, matches } from "@/components/app/inputs";
+import { DateRangeFilter, FilterBar, SearchInput, filterSelect, matches } from "@/components/app/inputs";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { productNames, useInvalidateAll, usePurchases, useProducts, type PurchaseListRow } from "@/lib/data";
 import { errMsg, fmtDate, fmtMoney, fmtNum, MONEY_UNIT_SHORT } from "@/lib/format";
@@ -46,12 +47,12 @@ function PurchasesPage() {
   };
 
   const columns: Column<PurchaseListRow>[] = [
-    { key: "code", header: "Mã phiếu nhập", cell: (r) => <span className="font-medium text-primary">{r.code}</span> },
+    { key: "code", header: "Mã phiếu nhập", mobile: "title", cell: (r) => <span className="font-medium text-primary">{r.code}</span> },
     { key: "date", header: "Ngày nhập", cell: (r) => fmtDate(r.receipt_date) },
     { key: "products", header: "Sản phẩm", className: "max-w-[260px] truncate", cell: (r) => productNames(r.purchase_items, 3) },
     { key: "qty", header: "Tổng số lượng", align: "right", cell: (r) => <span className="num">{fmtNum(r.total_qty)}</span> },
-    { key: "amount", header: `Tổng tiền nhập (${MONEY_UNIT_SHORT})`, align: "right", cell: (r) => <span className="num font-semibold">{fmtMoney(r.total_amount)}</span> },
-    { key: "status", header: "Trạng thái", cell: (r) => <StatusBadge kind={r.status} /> },
+    { key: "amount", header: `Tổng tiền nhập (${MONEY_UNIT_SHORT})`, align: "right", mobile: "aside", cell: (r) => <span className="num font-semibold">{fmtMoney(r.total_amount)}</span> },
+    { key: "status", header: "Trạng thái", mobile: "aside", cell: (r) => <StatusBadge kind={r.status} /> },
     {
       key: "actions", header: "Thao tác", align: "right",
       cell: (r) => (
@@ -76,25 +77,25 @@ function PurchasesPage() {
       <PageHeader title="Mua vào" subtitle="Phiếu nhập hàng – tự động cập nhật tồn kho và giá vốn bình quân"
         actions={<Button asChild><Link to="/purchases/new"><Plus className="h-4 w-4" />Tạo phiếu nhập</Link></Button>} />
       <Card>
-        <div className="mb-4 flex flex-wrap items-center gap-2">
+        <FilterBar>
           <SearchInput value={q} onChange={setQ} placeholder="Mã phiếu, sản phẩm, ghi chú..." />
           <DateRangeFilter from={range.from} to={range.to} onChange={(from, to) => setRange({ from, to })} />
           <Select value={productId} onValueChange={setProductId}>
-            <SelectTrigger className="h-9 w-[180px] bg-card" aria-label="Lọc theo sản phẩm"><SelectValue /></SelectTrigger>
+            <SelectTrigger className={cn(filterSelect, "sm:max-w-[16rem]")} aria-label="Lọc theo sản phẩm"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tất cả sản phẩm</SelectItem>
               {products.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="h-9 w-[150px] bg-card" aria-label="Lọc trạng thái"><SelectValue /></SelectTrigger>
+            <SelectTrigger className={filterSelect} aria-label="Lọc trạng thái"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tất cả trạng thái</SelectItem>
               <SelectItem value="completed">Hoàn tất</SelectItem>
               <SelectItem value="cancelled">Đã hủy</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </FilterBar>
         <DataTable columns={columns} rows={rows} rowKey={(r) => r.id}
           onRowClick={(r) => void navigate({ to: "/purchases/$id", params: { id: r.id } })}
           rowClassName={(r) => (r.status === "cancelled" ? "opacity-60" : undefined)}

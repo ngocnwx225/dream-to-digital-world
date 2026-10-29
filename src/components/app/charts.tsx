@@ -30,7 +30,8 @@ const compact = (v: number) => v.toLocaleString("vi-VN", { notation: "compact", 
 /** Daily revenue for a month; days without sales are zero. */
 export function RevenueChart({ data, month }: { data: { day: number; revenue: number }[]; month: number }) {
   return (
-    <ResponsiveContainer width="100%" height={260}>
+    <div className="h-[220px] w-full sm:h-[260px]">
+    <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1">
@@ -39,14 +40,15 @@ export function RevenueChart({ data, month }: { data: { day: number; revenue: nu
           </linearGradient>
         </defs>
         <CartesianGrid stroke={GRID} vertical={false} />
-        <XAxis dataKey="day" tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }} interval="preserveStartEnd" minTickGap={12} />
-        <YAxis tick={AXIS} tickLine={false} axisLine={false} width={48} tickFormatter={compact} />
+        <XAxis dataKey="day" tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }} interval="preserveStartEnd" minTickGap={18} />
+        <YAxis tick={AXIS} tickLine={false} axisLine={false} width={44} tickFormatter={compact} />
         <Tooltip content={<MoneyTooltip labelPrefix="Ngày " labelSuffix={`/${String(month).padStart(2, "0")}`} />}
           cursor={{ stroke: SERIES[0], strokeDasharray: "3 3" }} />
         <Area type="monotone" dataKey="revenue" name="Doanh thu" stroke={SERIES[0]} strokeWidth={2.5} fill="url(#revFill)"
           activeDot={{ r: 5, strokeWidth: 2, stroke: "#fff" }} dot={false} />
       </AreaChart>
     </ResponsiveContainer>
+    </div>
   );
 }
 
@@ -61,7 +63,7 @@ export function SalesDonut({ rows }: { rows: { name: string; revenue: number }[]
   ];
   return (
     <div className="flex flex-col items-center gap-4 sm:flex-row lg:flex-col xl:flex-row">
-      <div className="relative h-[180px] w-[180px] shrink-0">
+      <div className="relative mx-auto h-[180px] w-[180px] shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie data={data} dataKey="value" nameKey="name" innerRadius={58} outerRadius={84} paddingAngle={data.length > 1 ? 2 : 0} stroke="#fff" strokeWidth={2}>
@@ -103,16 +105,18 @@ export function SalesDonut({ rows }: { rows: { name: string; revenue: number }[]
 /** Revenue vs profit per period bucket (day or month); one shared money axis. */
 export function ProfitChart({ data, labelPrefix }: { data: { label: string; revenue: number; profit: number }[]; labelPrefix: string }) {
   return (
-    <ResponsiveContainer width="100%" height={280}>
+    <div className="h-[240px] w-full sm:h-[280px]">
+    <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }} barGap={2}>
         <CartesianGrid stroke={GRID} vertical={false} />
-        <XAxis dataKey="label" tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }} interval="preserveStartEnd" minTickGap={8} />
-        <YAxis tick={AXIS} tickLine={false} axisLine={false} width={48} tickFormatter={compact} />
+        <XAxis dataKey="label" tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }} interval="preserveStartEnd" minTickGap={14} />
+        <YAxis tick={AXIS} tickLine={false} axisLine={false} width={44} tickFormatter={compact} />
         <Tooltip content={<MoneyTooltip labelPrefix={labelPrefix} />} cursor={{ fill: "#eef3fb" }} />
         <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, color: "#64748b" }} />
         <Bar dataKey="revenue" name="Doanh thu" fill={SERIES[0]} radius={[6, 6, 0, 0]} maxBarSize={22} />
         <Bar dataKey="profit" name="Lợi nhuận sau vật tư" fill={SERIES[2]} radius={[6, 6, 0, 0]} maxBarSize={22} />
       </BarChart>
     </ResponsiveContainer>
+    </div>
   );
 }

@@ -96,7 +96,7 @@ function SaleDetailPage() {
               </tbody>
             </table>
           </TableWrap>
-          <div className="mt-4 grid gap-3 border-t border-border pt-4 text-sm sm:grid-cols-4">
+          <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4 text-sm xl:grid-cols-4">
             <Stat k="Tổng tiền bán" v={fmtMoney(o.total_amount)} strong />
             <Stat k="Giá vốn sản phẩm" v={fmtMoney(o.total_cost)} />
             <Stat k={legacy ? "Vật tư tiêu hao (đơn cũ)" : `Vật tư tiêu hao (${fmtNum(o.vehicle_count)} xe)`} v={fmtMoney(o.consumable_total_cost)} />
