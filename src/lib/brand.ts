@@ -6,7 +6,9 @@ export const DEFAULT_LOGO = "/logo.png";
 /** Approximation of the built-in primary (oklch 0.565 0.235 264), shown by the colour picker when none is saved. */
 export const DEFAULT_BRAND_COLOR = "#3b5bdb";
 
-export type Brand = { name: string; logo: string; color: string | null };
+export const DEFAULT_BRAND_SUBTITLE = "Quản lý mua bán & tồn kho";
+
+export type Brand = { name: string; subtitle: string; logo: string; color: string | null };
 
 const CACHE_KEY = "brand-config";
 const HEX = /^#[0-9a-f]{6}$/i;
@@ -14,10 +16,13 @@ const HEX = /^#[0-9a-f]{6}$/i;
 // Databases created before the rename still hold the old default name.
 const LEGACY_NAMES = new Set(["", "StoreFlow"]);
 
-export function resolveBrand(s?: { store_name?: string | null; logo_url?: string | null; brand_color?: string | null } | null): Brand {
+export function resolveBrand(s?: {
+  store_name?: string | null; brand_subtitle?: string | null; logo_url?: string | null; brand_color?: string | null;
+} | null): Brand {
   const name = (s?.store_name ?? "").trim();
   return {
     name: LEGACY_NAMES.has(name) ? DEFAULT_BRAND_NAME : name,
+    subtitle: s?.brand_subtitle == null ? DEFAULT_BRAND_SUBTITLE : s.brand_subtitle.trim(),
     logo: s?.logo_url || DEFAULT_LOGO,
     color: s?.brand_color && HEX.test(s.brand_color) ? s.brand_color : null,
   };
@@ -34,7 +39,7 @@ export function readBrandCache(): Brand {
 
 function writeBrandCache(b: Brand) {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ store_name: b.name, logo_url: b.logo === DEFAULT_LOGO ? null : b.logo, brand_color: b.color }));
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ store_name: b.name, brand_subtitle: b.subtitle, logo_url: b.logo === DEFAULT_LOGO ? null : b.logo, brand_color: b.color }));
   } catch { /* quota or unavailable: ignore */ }
 }
 

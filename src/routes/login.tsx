@@ -75,7 +75,7 @@ function LoginPage() {
           <div className="mb-6 flex flex-col items-center text-center lg:hidden">
             <img src={brand.logo} alt={brand.name} className="mb-3 h-20 w-20 rounded-full object-cover shadow-glow" />
             <h1 className="text-2xl font-bold text-foreground">{brand.name}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Hệ thống quản lý mua bán &amp; tồn kho</p>
+            {brand.subtitle && <p className="mt-1 text-sm text-muted-foreground">{brand.subtitle}</p>}
           </div>
           <div className="card-surface p-6 shadow-elevated md:p-8">
             {ownerQuery.isLoading ? (

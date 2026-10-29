@@ -17,7 +17,7 @@ export type Customer = {
 export type Settings = {
   store_name: string; default_low_stock: number; consumable_cost_per_vehicle: number;
   /** Absent until the branding columns are migrated. */
-  logo_url?: string | null; brand_color?: string | null;
+  logo_url?: string | null; brand_color?: string | null; brand_subtitle?: string | null;
 };
 export type DocStatus = "completed" | "cancelled";
 

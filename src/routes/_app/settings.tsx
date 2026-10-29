@@ -41,7 +41,10 @@ function SettingsPage() {
 }
 
 const LOGO_SIZE = 256;
-const brandSchema = z.object({ store_name: z.string().trim().min(1, "Vui lòng nhập tên hệ thống").max(100) });
+const brandSchema = z.object({
+  store_name: z.string().trim().min(1, "Vui lòng nhập tên hệ thống").max(100),
+  brand_subtitle: z.string().trim().max(100),
+});
 
 /** Centre-crops the picked image to a square and re-encodes it small enough to store in the settings row. */
 function imageToLogo(file: File): Promise<string> {
@@ -64,14 +67,14 @@ function imageToLogo(file: File): Promise<string> {
 function BrandSettings() {
   const { data, isLoading } = useSettings();
   const invalidate = useInvalidateAll();
-  const form = useForm<z.infer<typeof brandSchema>>({ resolver: zodResolver(brandSchema), defaultValues: { store_name: "" } });
+  const form = useForm<z.infer<typeof brandSchema>>({ resolver: zodResolver(brandSchema), defaultValues: { store_name: "", brand_subtitle: "" } });
   const { errors, isSubmitting } = form.formState;
   const [logo, setLogo] = useState<string | null>(null);
   const [color, setColor] = useState<string | null>(null);
   useEffect(() => {
     if (!data) return;
     const b = resolveBrand(data);
-    form.reset({ store_name: b.name });
+    form.reset({ store_name: b.name, brand_subtitle: b.subtitle });
     setLogo(data.logo_url ?? null);
     setColor(b.color);
   }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -84,9 +87,9 @@ function BrandSettings() {
 
   const onSubmit = form.handleSubmit(async (v) => {
     const { error } = await supabase.from("settings")
-      .update({ store_name: v.store_name.trim(), logo_url: logo, brand_color: color } as never).eq("id", 1);
+      .update({ store_name: v.store_name.trim(), brand_subtitle: v.brand_subtitle.trim(), logo_url: logo, brand_color: color } as never).eq("id", 1);
     if (error) {
-      return void toast.error(/logo_url|brand_color/.test(error.message)
+      return void toast.error(/logo_url|brand_color|brand_subtitle/.test(error.message)
         ? "Chưa cập nhật cơ sở dữ liệu: cần chạy migration 0002 trước khi lưu logo và màu."
         : errMsg(error));
     }
@@ -100,6 +103,9 @@ function BrandSettings() {
         <form onSubmit={onSubmit} noValidate className="space-y-4">
           <Field label="Tên hệ thống" htmlFor="store_name" required error={errors.store_name?.message}>
             <Input id="store_name" className="h-9" {...form.register("store_name")} />
+          </Field>
+          <Field label="Dòng mô tả dưới tên" htmlFor="brand_subtitle" error={errors.brand_subtitle?.message} hint="Để trống nếu không muốn hiển thị.">
+            <Input id="brand_subtitle" className="h-9" {...form.register("brand_subtitle")} />
           </Field>
           <Field label="Logo" hint="Ảnh được cắt vuông và thu nhỏ tự động. Cũng dùng làm biểu tượng tab trình duyệt.">
             <div className="flex items-center gap-3">

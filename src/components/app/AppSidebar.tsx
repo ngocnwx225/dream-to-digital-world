@@ -28,7 +28,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="leading-tight">
               <p className="text-base font-bold tracking-tight text-sidebar-accent-foreground">{brand.name}</p>
-              <p className="text-xs text-sidebar-foreground/60">Quản lý mua bán & tồn kho</p>
+              {brand.subtitle && <p className="text-xs text-sidebar-foreground/60">{brand.subtitle}</p>}
             </div>
           )}
         </Link>
