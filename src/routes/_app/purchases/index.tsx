@@ -13,7 +13,7 @@ import { productNames, useInvalidateAll, usePurchases, useProducts, type Purchas
 import { errMsg, fmtDate, fmtMoney, fmtNum, MONEY_UNIT_SHORT } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/purchases/")({
-  head: () => ({ meta: [{ title: "Mua vào – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Mua vào – Chơi Xe-Xe Chơi" }] }),
   component: PurchasesPage,
 });
 

@@ -1,9 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Boxes, Home, Package, Settings, ShoppingCart, Truck, Users, Warehouse } from "lucide-react";
+import { BarChart3, Home, Package, Settings, ShoppingCart, Truck, Users, Warehouse } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
+import { useBrand } from "@/lib/brand";
 
 const groups = [
   { label: "Tổng quan", items: [{ title: "Tổng quan", url: "/dashboard", icon: Home }] },
@@ -17,15 +18,16 @@ export function AppSidebar() {
   const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed" && !isMobile;
   const path = useRouterState({ select: (r) => r.location.pathname });
+  const brand = useBrand();
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-3 py-4">
         <Link to="/dashboard" onClick={() => setOpenMobile(false)} className="flex items-center gap-3 rounded-lg">
-          <div className="bg-brand flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sidebar-primary-foreground shadow-glow ring-1 ring-inset ring-white/15"><Boxes className="h-5 w-5" /></div>
+          <img src={brand.logo} alt={brand.name} className="h-9 w-9 shrink-0 rounded-full object-cover" />
           {!collapsed && (
             <div className="leading-tight">
-              <p className="text-base font-bold tracking-tight text-sidebar-accent-foreground">StoreFlow</p>
+              <p className="text-base font-bold tracking-tight text-sidebar-accent-foreground">{brand.name}</p>
               <p className="text-xs text-sidebar-foreground/60">Quản lý mua bán & tồn kho</p>
             </div>
           )}

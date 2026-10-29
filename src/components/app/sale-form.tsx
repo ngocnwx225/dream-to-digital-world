@@ -10,8 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { useBalances, useCustomers, useInvalidateAll, useProducts, useSettings, type SaleOrderDetail } from "@/lib/data";
-import { amountFromUnit, consumableCost, parseDecimal, profitAfterConsumables, round3, toInputString } from "@/lib/calc";
+import { useBalances, useCustomers, useInvalidateAll, useProducts, type SaleOrderDetail } from "@/lib/data";
+import { amountFromUnit, parseDecimal, round3, toInputString } from "@/lib/calc";
 import { errMsg, fmtMoney, fmtNum, MONEY_UNIT, todayISO } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { CurrencyInput, Field, QuantityInput } from "./inputs";
@@ -51,7 +51,7 @@ const LINE_COLS = "@3xl:grid-cols-[2.25rem_minmax(11rem,1fr)_9.5rem_6rem_7rem_8r
 export function saleDefaults(o?: SaleOrderDetail): SaleFormValues {
   if (!o) {
     return {
-      order_date: todayISO(), mode: "guest", customer_id: "", name: "", phone: "", plate: "", vehicle_name: "",
+      order_date: todayISO(), mode: "new", customer_id: "", name: "", phone: "", plate: "", vehicle_name: "",
       save_customer: true, note: "", vehicle_count: "1", items: [emptyLine()],
     };
   }
@@ -83,24 +83,33 @@ const MODES = [
   { value: "new", label: "Khách hàng mới" },
 ] as const;
 
-/**
- * `storedRate` is the consumable cost per vehicle saved on the order being edited (null for new
- * orders and legacy orders); it mirrors how save_sale picks the rate so the preview matches.
- */
-export function SaleForm({ id, code, defaults, storedRate = null }: {
-  id?: string; code?: string; defaults: SaleFormValues; storedRate?: number | null;
+export function SaleForm({ id, code, defaults }: {
+  id?: string; code?: string; defaults: SaleFormValues;
 }) {
   const navigate = useNavigate();
   const invalidate = useInvalidateAll();
   const { data: products = [], isLoading } = useProducts();
   const { data: balances } = useBalances();
   const { data: customers = [] } = useCustomers();
-  const { data: settings } = useSettings();
   const form = useForm<SaleFormValues>({ resolver: zodResolver(schema), defaultValues: defaults });
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "items" });
   const items = useWatch({ control: form.control, name: "items" }) ?? [];
   const mode = useWatch({ control: form.control, name: "mode" });
+  const phoneRaw = useWatch({ control: form.control, name: "phone" }) ?? "";
   const vehiclesRaw = useWatch({ control: form.control, name: "vehicle_count" });
+  // A new customer must not reuse a phone number that already belongs to a saved customer.
+  const phoneDigits = phoneRaw.replace(/\D/g, "");
+  const phoneMatches = mode === "new" && phoneDigits.length >= 8
+    ? customers.filter((c) => (c.phone ?? "").replace(/\D/g, "") === phoneDigits)
+    : [];
+  const pickExisting = (c: (typeof customers)[number]) => {
+    form.setValue("mode", "existing");
+    form.setValue("customer_id", c.id, { shouldValidate: isSubmitted });
+    form.setValue("name", c.name);
+    form.setValue("phone", c.phone ?? "");
+    form.setValue("plate", c.plate ?? "");
+    form.setValue("vehicle_name", c.vehicle_name ?? "");
+  };
   const { errors, isSubmitting, isSubmitted } = form.formState;
   const keepIds = defaults.items.map((i) => i.product_id);
 
@@ -116,13 +125,6 @@ export function SaleForm({ id, code, defaults, storedRate = null }: {
   const totalQty = round3(items.reduce((s, l) => s + (parseDecimal(l.quantity) ?? 0), 0));
   const totalAmount = round3(items.reduce((s, l) => s + lineTotal(l), 0));
   const opts = { shouldValidate: isSubmitted, shouldDirty: true };
-
-  // Order summary (internal): consumables are a cost only, never added to what the customer pays.
-  const vehicles = /^\d+$/.test(vehiclesRaw?.trim() ?? "") ? Number(vehiclesRaw) : 0;
-  const rate = storedRate ?? (!id || vehicles > 0 ? (settings?.consumable_cost_per_vehicle ?? 0) : 0);
-  const consumables = consumableCost(vehicles, rate);
-  const estCogs = round3(items.reduce((s, l) => s + (parseDecimal(l.quantity) ?? 0) * (balances?.get(l.product_id)?.avg_cost ?? 0), 0));
-  const { profit: estProfit } = profitAfterConsumables(totalAmount, estCogs, consumables);
 
   const onSubmit = form.handleSubmit(async (v) => {
     const shortRows = v.items.map((l, i) => (short(l.product_id) ? i : -1)).filter((i) => i >= 0);
@@ -157,7 +159,8 @@ export function SaleForm({ id, code, defaults, storedRate = null }: {
           </Field>
           <Field label="Loại khách" className="sm:col-span-2 lg:col-span-1">
             <div role="radiogroup" className="flex rounded-lg border border-border bg-muted/50 p-0.5">
-              {MODES.map((m) => (
+              {/* "Khách lẻ" only stays selectable while editing a legacy order saved without a customer. */}
+              {MODES.filter((m) => m.value !== "guest" || mode === "guest").map((m) => (
                 <button key={m.value} type="button" role="radio" aria-checked={mode === m.value}
                   onClick={() => { form.setValue("mode", m.value); if (m.value !== "existing") form.setValue("customer_id", ""); }}
                   className={cn("min-h-8 flex-1 rounded-md px-1.5 py-1.5 text-xs font-medium leading-tight transition-colors pointer-coarse:min-h-10 sm:text-sm",
@@ -191,6 +194,18 @@ export function SaleForm({ id, code, defaults, storedRate = null }: {
           <Field label="Số điện thoại" htmlFor="phone">
             <Input id="phone" type="tel" inputMode="tel" className="h-9" {...form.register("phone")} />
           </Field>
+          {phoneMatches.length > 0 && (
+            <div role="alert" className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm sm:col-span-2 lg:col-span-3">
+              <p className="font-medium text-foreground">Số điện thoại này đã có trong danh sách khách hàng.</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {phoneMatches.map((c) => (
+                  <Button key={c.id} type="button" size="sm" variant="outline" onClick={() => pickExisting(c)}>
+                    Chọn {c.name}{c.plate ? ` – ${c.plate}` : ""}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
           <Field label="Biển số xe" htmlFor="plate">
             <Input id="plate" className="h-9 uppercase" placeholder="VD: 59A-123.45" {...form.register("plate")} />
           </Field>
@@ -276,7 +291,7 @@ export function SaleForm({ id, code, defaults, storedRate = null }: {
 
         <div className="mt-5 grid gap-5 border-t border-border pt-4 lg:grid-cols-[1fr_minmax(300px,380px)]">
           <Field label="Số xe" htmlFor="vehicle_count" error={errors.vehicle_count?.message} className="max-w-xs"
-            hint={`Vật tư tiêu hao ${fmtMoney(rate)} ${MONEY_UNIT}/xe. Đặt 0 nếu chỉ bán phụ tùng.`}>
+            hint="Đặt 0 nếu chỉ bán phụ tùng.">
             <QuantityInput id="vehicle_count" value={vehiclesRaw ?? ""} invalid={!!errors.vehicle_count} className="max-w-[120px]"
               onChange={(v) => form.setValue("vehicle_count", v.replace(/\D/g, ""), opts)} />
           </Field>
@@ -285,13 +300,7 @@ export function SaleForm({ id, code, defaults, storedRate = null }: {
             <dl className="space-y-1.5">
               <SummaryRow k="Tổng số lượng" v={fmtNum(totalQty)} />
               <SummaryRow k="Tổng tiền bán" v={<><span className="num text-lg font-bold text-primary">{fmtMoney(totalAmount)}</span> {MONEY_UNIT}</>} />
-              <SummaryRow k="Giá vốn sản phẩm (dự kiến)" v={`${fmtMoney(estCogs)} ${MONEY_UNIT}`} muted />
-              <SummaryRow k={`Vật tư tiêu hao (${fmtNum(vehicles)} xe)`} v={`${fmtMoney(consumables)} ${MONEY_UNIT}`} muted />
-              <div className="border-t border-border pt-1.5">
-                <SummaryRow k="Lợi nhuận dự kiến" v={<span className={cn("num font-semibold", estProfit >= 0 ? "text-success" : "text-destructive")}>{fmtMoney(estProfit)} {MONEY_UNIT}</span>} />
-              </div>
             </dl>
-            <p className="mt-2 text-xs text-muted-foreground">Khách thanh toán theo Tổng tiền bán; vật tư tiêu hao chỉ dùng để tính lợi nhuận.</p>
           </div>
         </div>
       </Card>

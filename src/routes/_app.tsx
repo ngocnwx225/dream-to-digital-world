@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/app/AppSidebar";
 import { AppHeader } from "@/components/app/AppHeader";
 import { PeriodProvider } from "@/lib/period";
 import { getActiveSession } from "@/lib/auth";
+import { useBrandEffect } from "@/lib/brand";
 import { supabase } from "@/integrations/supabase/client";
 
 // The Supabase session lives in browser storage, so the whole authenticated area
@@ -37,6 +38,7 @@ function AppLayout() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
+  useBrandEffect();
 
   // Expired session or logout in another tab: drop cached data and go to login.
   useEffect(() => {

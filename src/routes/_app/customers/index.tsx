@@ -10,7 +10,7 @@ import { round3 } from "@/lib/calc";
 import { fmtDate, fmtMoney, fmtNum, MONEY_UNIT_SHORT } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/customers/")({
-  head: () => ({ meta: [{ title: "Khách hàng – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Khách hàng – Chơi Xe-Xe Chơi" }] }),
   component: CustomersPage,
 });
 

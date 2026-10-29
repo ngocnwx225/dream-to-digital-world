@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { BarChart3, Boxes, Eye, EyeOff, Loader2, ShieldCheck, Truck } from "lucide-react";
+import { BarChart3, Eye, EyeOff, Loader2, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { FullPageLoader } from "@/components/app/shared";
 import { supabase } from "@/integrations/supabase/client";
 import { getActiveSession, rememberSession } from "@/lib/auth";
 import { errMsg } from "@/lib/format";
+import { useCachedBrand, type Brand } from "@/lib/brand";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
@@ -24,7 +25,7 @@ export const Route = createFileRoute("/login")({
     if (await getActiveSession()) throw redirect({ to: "/dashboard", replace: true });
   },
   pendingComponent: FullPageLoader,
-  head: () => ({ meta: [{ title: "Đăng nhập – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Đăng nhập – Chơi Xe-Xe Chơi" }] }),
   component: LoginPage,
 });
 
@@ -56,6 +57,7 @@ function PasswordInput({ id, ...props }: React.ComponentProps<typeof Input>) {
 }
 
 function LoginPage() {
+  const brand = useCachedBrand();
   const ownerQuery = useQuery({
     queryKey: ["owner-exists"],
     queryFn: async () => {
@@ -67,14 +69,12 @@ function LoginPage() {
 
   return (
     <div className="grid min-h-screen bg-background lg:grid-cols-[1.05fr_1fr]">
-      <BrandPanel />
+      <BrandPanel brand={brand} />
       <div className="flex items-center justify-center px-4 py-10">
         <div className="animate-page-in w-full max-w-[420px]">
           <div className="mb-6 flex flex-col items-center text-center lg:hidden">
-            <div className="bg-brand mb-3 flex h-12 w-12 items-center justify-center rounded-xl text-primary-foreground shadow-glow">
-              <Boxes className="h-6 w-6" />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground">StoreFlow</h1>
+            <img src={brand.logo} alt={brand.name} className="mb-3 h-20 w-20 rounded-full object-cover shadow-glow" />
+            <h1 className="text-2xl font-bold text-foreground">{brand.name}</h1>
             <p className="mt-1 text-sm text-muted-foreground">Hệ thống quản lý mua bán &amp; tồn kho</p>
           </div>
           <div className="card-surface p-6 shadow-elevated md:p-8">
@@ -86,7 +86,7 @@ function LoginPage() {
               <LoginForm />
             )}
           </div>
-          <p className="mt-6 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} StoreFlow</p>
+          <p className="mt-6 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} {brand.name}</p>
         </div>
       </div>
     </div>
@@ -100,16 +100,14 @@ const highlights = [
 ] as const;
 
 /** Desktop-only brand side of the login screen. */
-function BrandPanel() {
+function BrandPanel({ brand }: { brand: Brand }) {
   return (
     <aside className="bg-brand relative hidden overflow-hidden p-12 text-primary-foreground lg:flex lg:flex-col lg:justify-between">
       <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-20 h-[28rem] w-[28rem] rounded-full bg-sidebar/40 blur-3xl" />
       <div className="relative flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 ring-1 ring-inset ring-white/25 backdrop-blur">
-          <Boxes className="h-6 w-6" />
-        </div>
-        <span className="text-xl font-bold tracking-tight">StoreFlow</span>
+        <img src={brand.logo} alt="" className="h-14 w-14 rounded-full object-cover" />
+        <span className="text-xl font-bold tracking-tight">{brand.name}</span>
       </div>
       <div className="relative max-w-md">
         <h2 className="text-4xl font-bold leading-tight tracking-tight">Quản lý mua bán &amp; tồn kho, gọn trong một nơi.</h2>

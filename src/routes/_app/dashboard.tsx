@@ -12,7 +12,7 @@ import { usePeriod } from "@/lib/period";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/dashboard")({
-  head: () => ({ meta: [{ title: "Tổng quan – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Tổng quan – Chơi Xe-Xe Chơi" }] }),
   component: DashboardPage,
 });
 

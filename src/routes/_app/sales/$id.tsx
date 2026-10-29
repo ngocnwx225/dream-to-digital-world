@@ -11,7 +11,7 @@ import { errMsg, fmtDate, fmtDateTime, fmtMoney, fmtNum, fmtPct, fmtUnitCost, MO
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/sales/$id")({
-  head: () => ({ meta: [{ title: "Chi tiết đơn bán – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Chi tiết đơn bán – Chơi Xe-Xe Chơi" }] }),
   component: SaleDetailPage,
 });
 

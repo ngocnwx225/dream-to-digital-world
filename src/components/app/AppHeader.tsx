@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, Boxes, ChevronDown, LogOut, Package, Search, Settings, User, X } from "lucide-react";
+import { Bell, ChevronDown, LogOut, Package, Search, Settings, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -10,6 +10,7 @@ import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/compon
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useBrand } from "@/lib/brand";
 import { useBalances, useCustomers, useProducts, useProfile, useSettings } from "@/lib/data";
 import { signOut } from "@/lib/auth";
 import { errMsg, fmtNum } from "@/lib/format";
@@ -122,6 +123,7 @@ function StockBell() {
 
 export function AppHeader() {
   const { data: profile } = useProfile();
+  const brand = useBrand();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const name = profile?.full_name || profile?.email?.split("@")[0] || "Chủ cửa hàng";
@@ -141,8 +143,8 @@ export function AppHeader() {
     <header className="sticky top-0 z-20 flex h-16 items-center gap-1.5 border-b border-border/80 bg-card/95 px-3 sm:gap-3 sm:px-4 md:px-6">
       <SidebarTrigger aria-label="Mở menu điều hướng" className="h-10 w-10 shrink-0 text-muted-foreground" />
       <Link to="/dashboard" className="flex min-w-0 items-center gap-2 md:hidden">
-        <span className="bg-brand flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-primary-foreground"><Boxes className="h-4 w-4" /></span>
-        <span className="truncate text-base font-bold tracking-tight text-foreground">StoreFlow</span>
+        <img src={brand.logo} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" />
+        <span className="truncate text-base font-bold tracking-tight text-foreground">{brand.name}</span>
       </Link>
       <div className="hidden h-6 w-px bg-border md:block" aria-hidden />
       <div className="ml-auto flex items-center gap-0.5 sm:gap-1 md:ml-0 md:flex-1">

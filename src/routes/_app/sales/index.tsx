@@ -12,7 +12,7 @@ import { productNames, useInvalidateAll, useSales, type SaleOrderListRow } from 
 import { errMsg, fmtDate, fmtMoney, fmtNum, MONEY_UNIT_SHORT } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/sales/")({
-  head: () => ({ meta: [{ title: "Bán ra – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Bán ra – Chơi Xe-Xe Chơi" }] }),
   component: SalesPage,
 });
 

@@ -22,7 +22,7 @@ import { errMsg, fmtMoney, fmtNum, fmtUnitCost, MONEY_UNIT, MONEY_UNIT_SHORT } f
 
 export const Route = createFileRoute("/_app/products")({
   validateSearch: (s: Record<string, unknown>): { q?: string } => (typeof s["q"] === "string" ? { q: s["q"] } : {}),
-  head: () => ({ meta: [{ title: "Sản phẩm – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Sản phẩm – Chơi Xe-Xe Chơi" }] }),
   component: ProductsPage,
 });
 

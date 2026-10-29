@@ -17,7 +17,7 @@ import { errMsg, fmtDate, fmtMoney, fmtNum, fmtUnitCost, MONEY_UNIT, MONEY_UNIT_
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/import-excel")({
-  head: () => ({ meta: [{ title: "Nhập dữ liệu từ Excel – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Nhập dữ liệu từ Excel – Chơi Xe-Xe Chơi" }] }),
   component: ImportExcelPage,
 });
 

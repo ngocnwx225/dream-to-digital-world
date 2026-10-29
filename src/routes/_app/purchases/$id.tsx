@@ -10,7 +10,7 @@ import { errMsg, fmtDate, fmtDateTime, fmtMoney, fmtNum, fmtUnitCost, MONEY_UNIT
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/purchases/$id")({
-  head: () => ({ meta: [{ title: "Chi tiết phiếu nhập – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Chi tiết phiếu nhập – Chơi Xe-Xe Chơi" }] }),
   component: PurchaseDetailPage,
 });
 

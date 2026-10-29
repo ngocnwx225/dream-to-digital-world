@@ -5,7 +5,7 @@ import { SaleForm, saleDefaults } from "@/components/app/sale-form";
 import { useSaleOrder } from "@/lib/data";
 
 export const Route = createFileRoute("/_app/sales/edit/$id")({
-  head: () => ({ meta: [{ title: "Sửa đơn bán – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Sửa đơn bán – Chơi Xe-Xe Chơi" }] }),
   component: EditSalePage,
 });
 
@@ -24,7 +24,7 @@ function EditSalePage() {
   return (
     <>
       <PageHeader title={`Sửa đơn bán ${data.code}`} subtitle="Thay đổi sẽ tính lại tồn kho, giá vốn và lợi nhuận" />
-      <SaleForm id={id} code={data.code} defaults={saleDefaults(data)} storedRate={data.consumable_unit_cost} />
+      <SaleForm id={id} code={data.code} defaults={saleDefaults(data)} />
     </>
   );
 }

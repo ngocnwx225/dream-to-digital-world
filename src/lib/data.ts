@@ -14,7 +14,11 @@ export type Customer = {
   id: string; code: string; name: string; phone: string | null; vehicle_name: string | null;
   plate: string | null; note: string | null; created_at: string;
 };
-export type Settings = { store_name: string; default_low_stock: number; consumable_cost_per_vehicle: number };
+export type Settings = {
+  store_name: string; default_low_stock: number; consumable_cost_per_vehicle: number;
+  /** Absent until the branding columns are migrated. */
+  logo_url?: string | null; brand_color?: string | null;
+};
 export type DocStatus = "completed" | "cancelled";
 
 type Result = { data: unknown; error: { message: string } | null };
@@ -91,7 +95,7 @@ export function useSettings() {
   return useQuery({
     queryKey: ["settings"],
     queryFn: async () => {
-      const s = await must<Settings>(supabase.from("settings").select("store_name, default_low_stock, consumable_cost_per_vehicle").eq("id", 1).single());
+      const s = await must<Settings>(supabase.from("settings").select("*").eq("id", 1).single());
       return { ...s, default_low_stock: toNum(s.default_low_stock), consumable_cost_per_vehicle: toNum(s.consumable_cost_per_vehicle) };
     },
   });

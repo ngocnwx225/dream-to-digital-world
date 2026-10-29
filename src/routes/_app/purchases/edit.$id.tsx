@@ -5,7 +5,7 @@ import { PurchaseForm, purchaseDefaults } from "@/components/app/purchase-form";
 import { usePurchase } from "@/lib/data";
 
 export const Route = createFileRoute("/_app/purchases/edit/$id")({
-  head: () => ({ meta: [{ title: "Sửa phiếu nhập – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Sửa phiếu nhập – Chơi Xe-Xe Chơi" }] }),
   component: EditPurchasePage,
 });
 

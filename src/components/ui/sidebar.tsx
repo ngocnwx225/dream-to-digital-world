@@ -203,7 +203,7 @@ const Sidebar = React.forwardRef<
           >
             <SheetHeader className="sr-only">
               <SheetTitle>Điều hướng</SheetTitle>
-              <SheetDescription>Menu điều hướng chính của StoreFlow.</SheetDescription>
+              <SheetDescription>Menu điều hướng chính của Chơi Xe-Xe Chơi.</SheetDescription>
             </SheetHeader>
             <div className="flex h-full w-full flex-col pb-[env(safe-area-inset-bottom)]">{children}</div>
           </SheetContent>

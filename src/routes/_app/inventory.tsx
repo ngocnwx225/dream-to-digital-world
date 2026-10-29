@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/inventory")({
   validateSearch: (s: Record<string, unknown>): { product?: string } => (typeof s["product"] === "string" ? { product: s["product"] } : {}),
-  head: () => ({ meta: [{ title: "Tồn kho – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Tồn kho – Chơi Xe-Xe Chơi" }] }),
   component: InventoryPage,
 });
 

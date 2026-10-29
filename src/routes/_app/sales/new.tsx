@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/app/shared";
 import { SaleForm, saleDefaults } from "@/components/app/sale-form";
 
 export const Route = createFileRoute("/_app/sales/new")({
-  head: () => ({ meta: [{ title: "Tạo đơn bán – StoreFlow" }] }),
+  head: () => ({ meta: [{ title: "Tạo đơn bán – Chơi Xe-Xe Chơi" }] }),
   component: () => (
     <>
       <PageHeader title="Tạo đơn bán" subtitle="Một đơn bán có thể gồm nhiều sản phẩm" />
