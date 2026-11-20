@@ -17,7 +17,7 @@ function EditPurchasePage() {
     return (
       <Card>
         <EmptyState title={data ? "Phiếu nhập đã hủy, không thể sửa" : "Không tìm thấy phiếu nhập"}
-          action={<Button asChild variant="outline"><Link to="/purchases">Về danh sách</Link></Button>} />
+          action={<Button asChild variant="outline"><Link to="/warehouse">Về Sản phẩm</Link></Button>} />
       </Card>
     );
   }

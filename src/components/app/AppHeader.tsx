@@ -71,7 +71,7 @@ function GlobalSearch() {
         {results.products.length > 0 && <p className="px-2 pb-1 pt-2 text-[11px] font-semibold uppercase text-muted-foreground">Sản phẩm</p>}
         {results.products.map((p) => (
           <button key={p.id} type="button" className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-accent"
-            onClick={() => { void navigate({ to: "/products", search: { q: p.code } }); close(); }}>
+            onClick={() => { void navigate({ to: "/warehouse", search: { q: p.code } }); close(); }}>
             <Package className="h-4 w-4 text-primary" /><span className="flex-1 truncate">{p.name}</span><span className="text-xs text-muted-foreground">{p.code}</span>
           </button>
         ))}
@@ -115,7 +115,7 @@ function StockBell() {
             ))}
           </ul>
         )}
-        <Link to="/inventory" className="block border-t border-border px-4 py-2.5 text-center text-sm font-medium text-primary hover:bg-accent">Xem tồn kho</Link>
+        <Link to="/warehouse" className="block border-t border-border px-4 py-2.5 text-center text-sm font-medium text-primary hover:bg-accent">Xem tồn kho</Link>
       </PopoverContent>
     </Popover>
   );

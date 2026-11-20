@@ -383,7 +383,7 @@ export function InventoryAlertCard({ products, balances, defaultLow, loading, cl
   const list = products && balances ? lowStockList(products, balances, defaultLow) : [];
   return (
     <Card title="Tồn kho cần chú ý" icon={AlertTriangle} tone="danger" className={className}
-      action={<Link to="/inventory" className="text-sm font-medium text-primary hover:underline">Xem kho</Link>}>
+      action={<Link to="/warehouse" className="text-sm font-medium text-primary hover:underline">Xem kho</Link>}>
       {loading ? <LoadingSkeleton rows={4} /> : list.length === 0 ? (
         <EmptyState title="Tồn kho ổn định" hint="Không có sản phẩm hết hàng hoặc dưới mức cảnh báo." />
       ) : (

@@ -22,7 +22,7 @@ function PurchaseDetailPage() {
   const [pending, setPending] = useState(false);
 
   if (isLoading) return <Card><LoadingSkeleton rows={6} /></Card>;
-  if (!r) return <Card><EmptyState title="Không tìm thấy phiếu nhập" action={<Button asChild variant="outline"><Link to="/purchases">Về danh sách</Link></Button>} /></Card>;
+  if (!r) return <Card><EmptyState title="Không tìm thấy phiếu nhập" action={<Button asChild variant="outline"><Link to="/warehouse">Về Sản phẩm</Link></Button>} /></Card>;
 
   const cancel = async (reason: string) => {
     setPending(true);
@@ -38,7 +38,7 @@ function PurchaseDetailPage() {
     <>
       <PageHeader title={`Phiếu nhập ${r.code}`} subtitle={`Ngày nhập ${fmtDate(r.receipt_date)}`}
         actions={<>
-          <Button variant="outline" asChild><Link to="/purchases"><ArrowLeft className="h-4 w-4" />Danh sách</Link></Button>
+          <Button variant="outline" asChild><Link to="/warehouse"><ArrowLeft className="h-4 w-4" />Sản phẩm</Link></Button>
           {r.status === "completed" && <>
             <Button variant="outline" asChild><Link to="/purchases/edit/$id" params={{ id }}><Pencil className="h-4 w-4" />Sửa</Link></Button>
             <Button variant="outline" className="text-destructive hover:text-destructive" onClick={() => setCancelOpen(true)}><Ban className="h-4 w-4" />Hủy phiếu</Button>

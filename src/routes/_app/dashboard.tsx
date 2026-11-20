@@ -86,7 +86,7 @@ function DashboardPage() {
           loading={loading} change={change(stats.profit, prevTotals.profit)} onClick={() => setBreakdown("profit")} />
         {/* Profit above is after consumables: Doanh thu − Giá vốn − Vật tư tiêu hao. */}
         <MetricCard label="Giá trị tồn kho" value={fmtMoney(invValue.data ?? 0)} unit={MONEY_UNIT} icon={Boxes} tone="orange"
-          loading={invValue.isLoading} hint={`Cuối ${label}, theo giá vốn bình quân`} onClick={() => void navigate({ to: "/inventory" })} />
+          loading={invValue.isLoading} hint={`Cuối ${label}, theo giá vốn bình quân`} onClick={() => void navigate({ to: "/warehouse" })} />
         <MetricCard label="Số đơn bán" value={fmtNum(stats.orders)} unit="đơn" icon={ShoppingBag} tone="violet"
           loading={loading} change={change(stats.orders, prevTotals.orders)} onClick={() => setBreakdown("orders")} />
       </div>

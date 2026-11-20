@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Home, Package, Settings, ShoppingCart, Truck, Users, Warehouse } from "lucide-react";
+import { BarChart3, Home, Settings, ShoppingCart, Users, Warehouse } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
@@ -8,7 +8,8 @@ import { useBrand } from "@/lib/brand";
 
 const groups = [
   { label: "Tổng quan", items: [{ title: "Tổng quan", url: "/dashboard", icon: Home }] },
-  { label: "Kho hàng", items: [{ title: "Mua vào", url: "/purchases", icon: Truck }, { title: "Sản phẩm", url: "/products", icon: Package }, { title: "Tồn kho", url: "/inventory", icon: Warehouse }] },
+  // Receipt pages (new, edit, detail) are still under /purchases but belong to the warehouse entry.
+  { label: "Sản phẩm", items: [{ title: "Sản phẩm", url: "/warehouse", icon: Warehouse, also: ["/purchases"] }] },
   { label: "Bán hàng", items: [{ title: "Bán ra", url: "/sales", icon: ShoppingCart }, { title: "Khách hàng", url: "/customers", icon: Users }] },
   { label: "Thống kê", items: [{ title: "Doanh thu & Lợi nhuận", url: "/reports", icon: BarChart3 }] },
   { label: "Cài đặt", items: [{ title: "Cài đặt", url: "/settings", icon: Settings }] },
@@ -40,7 +41,7 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {g.items.map((it) => {
-                  const active = path === it.url || path.startsWith(it.url + "/");
+                  const active = [it.url, ...("also" in it ? it.also : [])].some((u) => path === u || path.startsWith(u + "/"));
                   return (
                     <SidebarMenuItem key={it.url}>
                       <SidebarMenuButton asChild isActive={active} tooltip={it.title}
