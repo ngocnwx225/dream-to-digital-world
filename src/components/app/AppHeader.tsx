@@ -78,7 +78,7 @@ function GlobalSearch() {
         {results.customers.length > 0 && <p className="px-2 pb-1 pt-2 text-[11px] font-semibold uppercase text-muted-foreground">Khách hàng</p>}
         {results.customers.map((c) => (
           <button key={c.id} type="button" className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-accent"
-            onClick={() => { void navigate({ to: "/sales", search: { customer: c.id } }); close(); }}>
+            onClick={() => { void navigate({ to: "/sales", search: { customer: c.id, tab: "customers" } }); close(); }}>
             <User className="h-4 w-4 text-primary" /><span className="flex-1 truncate">{c.name}</span><span className="text-xs text-muted-foreground">{c.phone ?? c.code}</span>
           </button>
         ))}

@@ -3,9 +3,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Ban, Eye, MoreHorizontal, Pencil, Plus, ShoppingBag, Users, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Card, DataTable, EmptyState, MetricCard, PageHeader, ReasonDialog, StatusBadge, type Column } from "@/components/app/shared";
+import { Card, DataTable, EmptyState, MetricCard, ReasonDialog, StatusBadge, type Column } from "@/components/app/shared";
 import { CustomerDetailSheet } from "@/components/app/customer-detail-sheet";
 import { CustomerFormDialog } from "@/components/app/customer-form-dialog";
 import { CustomerListSection } from "@/components/app/customer-list";
@@ -16,15 +17,18 @@ import { round3, salesPaymentTotal } from "@/lib/calc";
 import { errMsg, fmtDate, fmtMoney, fmtNum, MONEY_UNIT, MONEY_UNIT_SHORT } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/sales/")({
-  validateSearch: (s: Record<string, unknown>): { customer?: string } => (typeof s["customer"] === "string" ? { customer: s["customer"] } : {}),
+  validateSearch: (s: Record<string, unknown>): { customer?: string; tab?: "customers" } => ({
+    ...(typeof s["customer"] === "string" ? { customer: s["customer"] } : {}),
+    ...(s["tab"] === "customers" ? { tab: "customers" as const } : {}),
+  }),
   head: () => ({ meta: [{ title: "Bán hàng – Chơi Xe-Xe Chơi" }] }),
   component: SalesPage,
 });
 
-/** Sales orders and customers on one screen; a customer opens in a side sheet via ?customer=. */
+/** Orders and customers share one page as two tabs; a customer opens in a side sheet via ?customer=. */
 function SalesPage() {
   const navigate = useNavigate({ from: Route.fullPath });
-  const { customer: customerId } = Route.useSearch();
+  const { customer: customerId, tab } = Route.useSearch();
   const [range, setRange] = useState({ from: "", to: "" });
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
@@ -36,8 +40,9 @@ function SalesPage() {
   const invalidate = useInvalidateAll();
 
   const focusCustomer = customers?.find((c) => c.id === customerId) ?? null;
-  const openCustomer = (id: string) => void navigate({ search: { customer: id } });
-  const closeCustomer = () => void navigate({ search: {} });
+  const openCustomer = (id: string) => void navigate({ search: (prev) => ({ ...prev, customer: id }) });
+  const closeCustomer = () => void navigate({ search: (prev) => (prev.tab ? { tab: prev.tab } : {}) });
+  const changeTab = (v: string) => void navigate({ search: (prev) => (v === "customers" ? { ...prev, tab: "customers" as const } : prev.customer ? { customer: prev.customer } : {}) });
 
   // Summary of completed orders in the chosen date range.
   const summary = useMemo(() => {
@@ -102,19 +107,29 @@ function SalesPage() {
 
   return (
     <>
-      <PageHeader title="Bán hàng" subtitle="Đơn bán và khách hàng – đơn bán tự động trừ tồn kho và ghi nhận giá vốn"
-        actions={<>
-          <Button variant="outline" onClick={() => setEditingCustomer("new")}><Plus className="h-4 w-4" />Thêm khách hàng</Button>
-          <Button asChild><Link to="/sales/new"><Plus className="h-4 w-4" />Tạo đơn bán</Link></Button>
-        </>} />
+      <Tabs value={tab ?? "orders"} onValueChange={changeTab}>
+        {/* One compact row: title and tabs on the left, the action for the current tab on the right. */}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <h1 className="text-[22px] font-bold leading-tight tracking-tight text-foreground sm:text-2xl lg:text-[28px]">Bán hàng</h1>
+            <TabsList>
+              <TabsTrigger value="orders">Đơn bán</TabsTrigger>
+              <TabsTrigger value="customers">Khách hàng</TabsTrigger>
+            </TabsList>
+          </div>
+          {tab === "customers"
+            ? <Button onClick={() => setEditingCustomer("new")}><Plus className="h-4 w-4" />Thêm khách hàng</Button>
+            : <Button asChild><Link to="/sales/new"><Plus className="h-4 w-4" />Tạo đơn bán</Link></Button>}
+        </div>
 
+        <TabsContent value="orders">
       <div className="mb-5 grid gap-4 sm:grid-cols-3">
         <MetricCard label="Số đơn bán" value={fmtNum(summary.orders)} unit="đơn" icon={ShoppingBag} tone="violet" loading={sales.isLoading} hint="Đơn hoàn tất theo khoảng ngày đã chọn" />
         <MetricCard label="Tổng thanh toán" value={fmtMoney(summary.paid)} unit={MONEY_UNIT} icon={Wallet} tone="blue" loading={sales.isLoading} hint="Đã gồm phụ thu / tip" />
         <MetricCard label="Khách mua" value={fmtNum(summary.buyers)} unit="khách" icon={Users} tone="green" loading={sales.isLoading} hint="Khách có đơn trong khoảng ngày đã chọn" />
       </div>
 
-      <Card title="Đơn bán" icon={ShoppingBag}>
+      <Card>
         <FilterBar>
           <SearchInput value={q} onChange={setQ} placeholder="Mã đơn, khách, SĐT, biển số..." />
           <DateRangeFilter from={range.from} to={range.to} onChange={(from, to) => setRange({ from, to })} />
@@ -134,10 +149,12 @@ function SalesPage() {
           empty={<EmptyState title="Chưa có đơn bán" hint="Tạo đơn bán đầu tiên để ghi nhận doanh thu."
             action={<Button size="sm" asChild><Link to="/sales/new"><Plus className="h-4 w-4" />Tạo đơn bán</Link></Button>} />} />
       </Card>
+        </TabsContent>
 
-      <div className="mt-5">
-        <CustomerListSection onOpen={(c) => openCustomer(c.id)} onEdit={setEditingCustomer} onAdd={() => setEditingCustomer("new")} />
-      </div>
+        <TabsContent value="customers">
+          <CustomerListSection onOpen={(c) => openCustomer(c.id)} onEdit={setEditingCustomer} onAdd={() => setEditingCustomer("new")} />
+        </TabsContent>
+      </Tabs>
 
       <CustomerDetailSheet customer={focusCustomer} onClose={closeCustomer} onEdit={(c) => { closeCustomer(); setEditingCustomer(c); }} />
       <CustomerFormDialog customer={editingCustomer} onClose={() => setEditingCustomer(null)} />
