@@ -1,20 +1,19 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Ban, Eye, MoreHorizontal, Pencil, Plus, ShoppingBag, Users, Wallet } from "lucide-react";
+import { Ban, Eye, MoreHorizontal, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Card, DataTable, EmptyState, MetricCard, ReasonDialog, StatusBadge, type Column } from "@/components/app/shared";
+import { Card, DataTable, EmptyState, ReasonDialog, StatusBadge, type Column } from "@/components/app/shared";
 import { CustomerDetailSheet } from "@/components/app/customer-detail-sheet";
 import { CustomerFormDialog } from "@/components/app/customer-form-dialog";
 import { CustomerListSection } from "@/components/app/customer-list";
 import { DateRangeFilter, FilterBar, SearchInput, filterSelect, matches } from "@/components/app/inputs";
 import { supabase } from "@/integrations/supabase/client";
 import { productNames, useCustomers, useInvalidateAll, useSales, type Customer, type SaleOrderListRow } from "@/lib/data";
-import { round3, salesPaymentTotal } from "@/lib/calc";
-import { errMsg, fmtDate, fmtMoney, fmtNum, MONEY_UNIT, MONEY_UNIT_SHORT } from "@/lib/format";
+import { errMsg, fmtDate, fmtMoney, fmtNum, MONEY_UNIT_SHORT } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/sales/")({
   validateSearch: (s: Record<string, unknown>): { customer?: string; tab?: "customers" } => ({
@@ -43,16 +42,6 @@ function SalesPage() {
   const openCustomer = (id: string) => void navigate({ search: (prev) => ({ ...prev, customer: id }) });
   const closeCustomer = () => void navigate({ search: (prev) => (prev.tab ? { tab: prev.tab } : {}) });
   const changeTab = (v: string) => void navigate({ search: (prev) => (v === "customers" ? { ...prev, tab: "customers" as const } : prev.customer ? { customer: prev.customer } : {}) });
-
-  // Summary of completed orders in the chosen date range.
-  const summary = useMemo(() => {
-    const done = (sales.data ?? []).filter((r) => r.status === "completed");
-    return {
-      orders: done.length,
-      paid: round3(done.reduce((s, r) => s + salesPaymentTotal(r.total_amount, r.surcharge), 0)),
-      buyers: new Set(done.map((r) => r.customer_id ?? `guest:${r.customer_name ?? ""}:${r.phone ?? ""}`)).size,
-    };
-  }, [sales.data]);
 
   const rows = useMemo(() => sales.data?.filter((r) =>
     matches(q, r.code, r.customer_name, r.phone, r.plate, r.vehicle_name, ...r.sales_order_items.map((i) => i.products?.name)) &&
@@ -108,27 +97,26 @@ function SalesPage() {
   return (
     <>
       <Tabs value={tab ?? "orders"} onValueChange={changeTab}>
-        {/* One compact row: title and tabs on the left, the action for the current tab on the right. */}
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <h1 className="text-[22px] font-bold leading-tight tracking-tight text-foreground sm:text-2xl lg:text-[28px]">Bán hàng</h1>
-            <TabsList>
-              <TabsTrigger value="orders">Đơn bán</TabsTrigger>
-              <TabsTrigger value="customers">Khách hàng</TabsTrigger>
-            </TabsList>
-          </div>
+        {/* The tabs are the page title (the sidebar already says "Bán hàng"); the action for the current tab sits on the right. */}
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-3 border-b border-border">
+          <h1 className="sr-only">Bán hàng</h1>
+          <TabsList className="h-auto gap-6 rounded-none bg-transparent p-0">
+            {([["orders", "Đơn bán", sales.data?.length], ["customers", "Khách hàng", customers?.length]] as const).map(([value, label, count]) => (
+              <TabsTrigger key={value} value={value}
+                className="-mb-px rounded-none border-b-[3px] border-transparent bg-transparent px-0 pb-2.5 pt-1 text-xl font-bold tracking-tight text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none sm:text-2xl lg:text-[26px]">
+                {label}
+                {count != null && <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">{fmtNum(count)}</span>}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <div className="pb-2">
           {tab === "customers"
             ? <Button onClick={() => setEditingCustomer("new")}><Plus className="h-4 w-4" />Thêm khách hàng</Button>
             : <Button asChild><Link to="/sales/new"><Plus className="h-4 w-4" />Tạo đơn bán</Link></Button>}
+          </div>
         </div>
 
         <TabsContent value="orders">
-      <div className="mb-5 grid gap-4 sm:grid-cols-3">
-        <MetricCard label="Số đơn bán" value={fmtNum(summary.orders)} unit="đơn" icon={ShoppingBag} tone="violet" loading={sales.isLoading} hint="Đơn hoàn tất theo khoảng ngày đã chọn" />
-        <MetricCard label="Tổng thanh toán" value={fmtMoney(summary.paid)} unit={MONEY_UNIT} icon={Wallet} tone="blue" loading={sales.isLoading} hint="Đã gồm phụ thu / tip" />
-        <MetricCard label="Khách mua" value={fmtNum(summary.buyers)} unit="khách" icon={Users} tone="green" loading={sales.isLoading} hint="Khách có đơn trong khoảng ngày đã chọn" />
-      </div>
-
       <Card>
         <FilterBar>
           <SearchInput value={q} onChange={setQ} placeholder="Mã đơn, khách, SĐT, biển số..." />
