@@ -57,13 +57,21 @@ const toneMap = {
   red: "bg-danger-soft text-destructive",
 } as const;
 
-export function MetricCard({ label, value, unit, icon: Icon, tone, change, hint, loading }: {
+export function MetricCard({ label, value, unit, icon: Icon, tone, change, hint, loading, onClick }: {
   label: string; value: string; unit?: string; icon: LucideIcon; tone: keyof typeof toneMap;
   change?: number | null | undefined; hint?: string; loading?: boolean;
+  /** Makes the whole card a button (e.g. to open a breakdown). */
+  onClick?: () => void;
 }) {
   return (
     // Container query: the value grows with the card's own width, so 4-up desktop rows and 1-up phones both fit.
-    <div className="card-surface @container group relative flex h-full gap-3 overflow-hidden p-4 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-elevated sm:gap-4 md:p-5">
+    <div
+      {...(onClick && !loading ? {
+        role: "button", tabIndex: 0, onClick,
+        onKeyDown: (e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } },
+      } : {})}
+      className={cn("card-surface @container group relative flex h-full gap-3 overflow-hidden p-4 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-elevated sm:gap-4 md:p-5",
+        onClick && !loading && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring")}>
       <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset ring-current/10 sm:h-11 sm:w-11", toneMap[tone])}>
         <Icon className="h-5 w-5" />
       </div>

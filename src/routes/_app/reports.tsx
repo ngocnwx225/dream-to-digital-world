@@ -4,6 +4,7 @@ import { BarChart3, CircleDollarSign, Package, Percent, Receipt, Table2, Trendin
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, EmptyState, ErrorState, LoadingSkeleton, MetricCard, PageHeader, TableWrap, td, th, theadRow, trHover } from "@/components/app/shared";
 import { ProfitChart } from "@/components/app/charts";
+import { OrderBreakdownSheet, type BreakdownMetric } from "@/components/app/order-breakdown-sheet";
 import { useProducts, useSaleItems } from "@/lib/data";
 import { aggregateSales, orderConsumables, profitAfterConsumables, round3, totals } from "@/lib/calc";
 import { fmtMoney, fmtNum, fmtPct, monthRange, MONEY_UNIT, MONEY_UNIT_SHORT, yearRange } from "@/lib/format";
@@ -20,6 +21,7 @@ const ALL_YEAR = "0";
 function ReportsPage() {
   const { year, month, setPeriod } = usePeriod();
   const [wholeYear, setWholeYear] = useState(false);
+  const [breakdown, setBreakdown] = useState<BreakdownMetric | null>(null);
   const range = wholeYear ? { ...yearRange(year), days: 0 } : monthRange(year, month);
   const items = useSaleItems(range.from, range.to);
   const products = useProducts();
@@ -74,12 +76,13 @@ function ReportsPage() {
         </>} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
-        <MetricCard label="Tổng doanh thu" value={fmtMoney(data.revenue)} unit={MONEY_UNIT} icon={CircleDollarSign} tone="blue" loading={loading} hint={`${fmtNum(data.orders)} đơn bán hoàn tất`} />
-        <MetricCard label="Tổng giá vốn hàng bán" value={fmtMoney(data.cost)} unit={MONEY_UNIT} icon={Receipt} tone="orange" loading={loading} hint="SL bán × giá vốn BQ lúc bán" />
-        <MetricCard label="Tổng chi phí vật tư tiêu hao" value={fmtMoney(data.consumables)} unit={MONEY_UNIT} icon={Package} tone="red" loading={loading} hint="Số xe × chi phí/xe của từng đơn" />
-        <MetricCard label="Tổng lợi nhuận sau vật tư" value={fmtMoney(data.profit)} unit={MONEY_UNIT} icon={TrendingUp} tone="green" loading={loading} hint="Doanh thu − Giá vốn − Vật tư" />
-        <MetricCard label="Tỷ suất lợi nhuận sau vật tư" value={fmtPct(data.margin)} icon={Percent} tone="violet" loading={loading} hint="Lợi nhuận sau vật tư / Doanh thu" />
+        <MetricCard label="Tổng doanh thu" value={fmtMoney(data.revenue)} unit={MONEY_UNIT} icon={CircleDollarSign} tone="blue" loading={loading} hint={`${fmtNum(data.orders)} đơn bán hoàn tất`} onClick={() => setBreakdown("revenue")} />
+        <MetricCard label="Tổng giá vốn hàng bán" value={fmtMoney(data.cost)} unit={MONEY_UNIT} icon={Receipt} tone="orange" loading={loading} hint="SL bán × giá vốn BQ lúc bán" onClick={() => setBreakdown("cost")} />
+        <MetricCard label="Tổng chi phí vật tư tiêu hao" value={fmtMoney(data.consumables)} unit={MONEY_UNIT} icon={Package} tone="red" loading={loading} hint="Số xe × chi phí/xe của từng đơn" onClick={() => setBreakdown("consumables")} />
+        <MetricCard label="Tổng lợi nhuận sau vật tư" value={fmtMoney(data.profit)} unit={MONEY_UNIT} icon={TrendingUp} tone="green" loading={loading} hint="Doanh thu − Giá vốn − Vật tư" onClick={() => setBreakdown("profit")} />
+        <MetricCard label="Tỷ suất lợi nhuận sau vật tư" value={fmtPct(data.margin)} icon={Percent} tone="violet" loading={loading} hint="Lợi nhuận sau vật tư / Doanh thu" onClick={() => setBreakdown("margin")} />
       </div>
+      <OrderBreakdownSheet metric={breakdown} items={items.data ?? []} periodLabel={periodLabel} onClose={() => setBreakdown(null)} />
 
       <Card title={`Doanh thu & lợi nhuận sau vật tư ${wholeYear ? "theo tháng" : "theo ngày"}`} icon={BarChart3} className="mt-5"
         action={<span className="text-xs text-muted-foreground">Đơn vị: {MONEY_UNIT}</span>}>

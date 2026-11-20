@@ -1,10 +1,11 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { BarChart3, Boxes, CircleDollarSign, LineChart, PieChart, ReceiptText, ShoppingBag, TrendingUp } from "lucide-react";
 import {
   Card, DataTable, EmptyState, InventoryAlertCard, LoadingSkeleton, MetricCard, MonthYearPicker, PageHeader, StatusBadge, TableWrap, td, th, theadRow, trHover, type Column,
 } from "@/components/app/shared";
 import { RevenueChart, SalesDonut } from "@/components/app/charts";
+import { OrderBreakdownSheet, type BreakdownMetric } from "@/components/app/order-breakdown-sheet";
 import { useBalances, useInventoryValueAt, useProducts, useRecentTransactions, useSaleItems, useSettings, type RecentTx } from "@/lib/data";
 import { aggregateSales, orderConsumables, profitAfterConsumables, round3, totals } from "@/lib/calc";
 import { fmtDate, fmtMoney, fmtNum, fmtPct, monthRange, MONEY_UNIT, MONEY_UNIT_SHORT, pctChange, prevMonth } from "@/lib/format";
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_app/dashboard")({
 
 function DashboardPage() {
   const navigate = useNavigate();
+  const [breakdown, setBreakdown] = useState<BreakdownMetric | null>(null);
   const { year, month, setPeriod } = usePeriod();
   const cur = monthRange(year, month);
   const pm = prevMonth(year, month);
@@ -79,15 +81,16 @@ function DashboardPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Doanh thu tháng" value={fmtMoney(stats.revenue)} unit={MONEY_UNIT} icon={CircleDollarSign} tone="blue"
-          loading={loading} change={change(stats.revenue, prevTotals.revenue)} />
+          loading={loading} change={change(stats.revenue, prevTotals.revenue)} onClick={() => setBreakdown("revenue")} />
         <MetricCard label="Lợi nhuận tháng" value={fmtMoney(stats.profit)} unit={MONEY_UNIT} icon={TrendingUp} tone="green"
-          loading={loading} change={change(stats.profit, prevTotals.profit)} />
+          loading={loading} change={change(stats.profit, prevTotals.profit)} onClick={() => setBreakdown("profit")} />
         {/* Profit above is after consumables: Doanh thu − Giá vốn − Vật tư tiêu hao. */}
         <MetricCard label="Giá trị tồn kho" value={fmtMoney(invValue.data ?? 0)} unit={MONEY_UNIT} icon={Boxes} tone="orange"
-          loading={invValue.isLoading} hint={`Cuối ${label}, theo giá vốn bình quân`} />
+          loading={invValue.isLoading} hint={`Cuối ${label}, theo giá vốn bình quân`} onClick={() => void navigate({ to: "/inventory" })} />
         <MetricCard label="Số đơn bán" value={fmtNum(stats.orders)} unit="đơn" icon={ShoppingBag} tone="violet"
-          loading={loading} change={change(stats.orders, prevTotals.orders)} />
+          loading={loading} change={change(stats.orders, prevTotals.orders)} onClick={() => setBreakdown("orders")} />
       </div>
+      <OrderBreakdownSheet metric={breakdown} items={curItems.data ?? []} periodLabel={label} onClose={() => setBreakdown(null)} />
 
       <div className="mt-5 grid gap-5 lg:grid-cols-3">
         <Card title="Doanh thu theo ngày" icon={LineChart} className="lg:col-span-2"
