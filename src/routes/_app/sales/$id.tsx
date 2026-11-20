@@ -66,7 +66,7 @@ function SaleDetailPage() {
         <Card title="Khách hàng">
           <dl className="space-y-2.5 text-sm">
             <Row k="Khách hàng" v={o.customers
-              ? <Link to="/customers/$id" params={{ id: o.customers.id }} className="text-primary hover:underline">{o.customer_name} ({o.customers.code})</Link>
+              ? <Link to="/sales" search={{ customer: o.customers.id }} className="text-primary hover:underline">{o.customer_name} ({o.customers.code})</Link>
               : o.customer_name || "Khách lẻ"} />
             <Row k="Số điện thoại" v={o.phone || "—"} />
             <Row k="Biển số xe" v={o.plate || "—"} />

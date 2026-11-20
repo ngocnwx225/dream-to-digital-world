@@ -341,7 +341,7 @@ function ImportExcelPage() {
           {!running && (
             <div className="mt-4 flex flex-wrap gap-2">
               <Button variant="outline" asChild><Link to="/warehouse">Xem Sản phẩm</Link></Button>
-              <Button variant="outline" asChild><Link to="/sales">Xem Bán ra</Link></Button>
+              <Button variant="outline" asChild><Link to="/sales">Xem Bán hàng</Link></Button>
               <Button variant="outline" asChild><Link to="/warehouse">Xem Tồn kho</Link></Button>
             </div>
           )}
