@@ -6,7 +6,7 @@ import { Card, DataTable, EmptyState, PageHeader, type Column } from "@/componen
 import { FilterBar, SearchInput, matches } from "@/components/app/inputs";
 import { CustomerFormDialog } from "@/components/app/customer-form-dialog";
 import { useCustomers, useSales, type Customer } from "@/lib/data";
-import { round3 } from "@/lib/calc";
+import { round3, salesPaymentTotal } from "@/lib/calc";
 import { fmtDate, fmtMoney, fmtNum, MONEY_UNIT_SHORT } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/customers/")({
@@ -30,7 +30,7 @@ function CustomersPage() {
       if (!s.customer_id || s.status !== "completed") continue;
       const cur = stats.get(s.customer_id) ?? { orders: 0, spent: 0, last: null };
       cur.orders += 1;
-      cur.spent = round3(cur.spent + s.total_amount);
+      cur.spent = round3(cur.spent + salesPaymentTotal(s.total_amount, s.surcharge));
       if (!cur.last || s.order_date > cur.last) cur.last = s.order_date;
       stats.set(s.customer_id, cur);
     }

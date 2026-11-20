@@ -35,6 +35,7 @@ const schema = z
     save_customer: z.boolean(),
     note: z.string().max(1000),
     vehicle_count: z.string().refine((s) => /^\d{1,3}$/.test(s.trim()), "Số xe phải là số nguyên ≥ 0"),
+    surcharge: z.string().refine((s) => (parseDecimal(s) ?? 0) >= 0, "Phụ thu không hợp lệ"),
     items: z.array(lineSchema).min(1, "Đơn bán phải có ít nhất một sản phẩm"),
   })
   .superRefine((v, ctx) => {
@@ -52,7 +53,7 @@ export function saleDefaults(o?: SaleOrderDetail): SaleFormValues {
   if (!o) {
     return {
       order_date: todayISO(), mode: "new", customer_id: "", name: "", phone: "", plate: "", vehicle_name: "",
-      save_customer: true, note: "", vehicle_count: "1", items: [emptyLine()],
+      save_customer: true, note: "", vehicle_count: "1", surcharge: "0", items: [emptyLine()],
     };
   }
   return {
@@ -64,6 +65,7 @@ export function saleDefaults(o?: SaleOrderDetail): SaleFormValues {
     save_customer: false, note: o.note ?? "",
     // Legacy orders have no vehicle data; start at 0 so nothing is charged unless the owner sets it.
     vehicle_count: String(o.vehicle_count ?? 0),
+    surcharge: toInputString(o.surcharge ?? 0, 3),
     items: o.sales_order_items.map((i) => ({ product_id: i.product_id, unit_price: toInputString(i.unit_price, 3), quantity: toInputString(i.quantity, 3) })),
   };
 }
@@ -124,6 +126,8 @@ export function SaleForm({ id, code, defaults }: {
   const lineTotal = (l: Line) => amountFromUnit(parseDecimal(l.unit_price) ?? 0, parseDecimal(l.quantity) ?? 0);
   const totalQty = round3(items.reduce((s, l) => s + (parseDecimal(l.quantity) ?? 0), 0));
   const totalAmount = round3(items.reduce((s, l) => s + lineTotal(l), 0));
+  const surcharge = parseDecimal(useWatch({ control: form.control, name: "surcharge" })) ?? 0;
+  const totalPayment = round3(totalAmount + surcharge);
   const opts = { shouldValidate: isSubmitted, shouldDirty: true };
 
   const onSubmit = form.handleSubmit(async (v) => {
@@ -141,6 +145,7 @@ export function SaleForm({ id, code, defaults }: {
       p_note: (v.note.trim() || null) as string,
       p_items: v.items.map((l) => ({ product_id: l.product_id, quantity: parseDecimal(l.quantity), unit_price: parseDecimal(l.unit_price) })),
       p_vehicle_count: Number(v.vehicle_count.trim()),
+      p_surcharge: parseDecimal(v.surcharge) ?? 0,
     });
     // Stock is re-validated in the database (including backdated orders); its message names the product and date.
     if (error) return void toast.error(errMsg(error));
@@ -295,12 +300,19 @@ export function SaleForm({ id, code, defaults }: {
             <QuantityInput id="vehicle_count" value={vehiclesRaw ?? ""} invalid={!!errors.vehicle_count} className="max-w-[120px]"
               onChange={(v) => form.setValue("vehicle_count", v.replace(/\D/g, ""), opts)} />
           </Field>
-          <div className="rounded-xl bg-muted/50 p-4 text-sm">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tổng kết đơn hàng</p>
-            <dl className="space-y-1.5">
-              <SummaryRow k="Tổng số lượng" v={fmtNum(totalQty)} />
-              <SummaryRow k="Tổng tiền bán" v={<><span className="num text-lg font-bold text-primary">{fmtMoney(totalAmount)}</span> {MONEY_UNIT}</>} />
-            </dl>
+          <div className="space-y-3">
+            <Field label="Phụ thu / Tip" htmlFor="surcharge" error={errors.surcharge?.message}>
+              <CurrencyInput id="surcharge" value={form.watch("surcharge")} onChange={(v) => form.setValue("surcharge", v, opts)} invalid={!!errors.surcharge} />
+            </Field>
+            <div className="rounded-xl bg-muted/50 p-4 text-sm">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tổng kết đơn hàng</p>
+              <dl className="space-y-1.5">
+                <SummaryRow k="Tổng số lượng" v={fmtNum(totalQty)} />
+                <SummaryRow k="Tổng tiền bán" v={<><span className="num text-lg font-bold text-primary">{fmtMoney(totalAmount)}</span> {MONEY_UNIT}</>} />
+                {surcharge > 0 && <SummaryRow k="Phụ thu / Tip" v={<><span className="num">{fmtMoney(surcharge)}</span> {MONEY_UNIT}</>} />}
+                <SummaryRow k="Tổng thanh toán" v={<><span className="num text-lg font-bold text-primary">{fmtMoney(totalPayment)}</span> {MONEY_UNIT}</>} />
+              </dl>
+            </div>
           </div>
         </div>
       </Card>

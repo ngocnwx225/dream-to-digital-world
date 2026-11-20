@@ -19,6 +19,11 @@ export function amountFromUnit(unit: number, qty: number): number {
   return round3(unit * qty);
 }
 
+/** Customer payment due includes optional surcharge; product revenue stays separate. */
+export function salesPaymentTotal(amount: number, surcharge = 0): number {
+  return round3(amount + Math.max(0, surcharge));
+}
+
 /**
  * Parse a user-typed decimal. Accepts "50.8" and "50,8" (Vietnamese decimal comma).
  * Thousand separators are not supported in inputs, so "1.234" means 1.234.

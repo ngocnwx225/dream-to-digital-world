@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aggregateSales, consumableCost, movingAverage, orderConsumables, profitAfterConsumables, parseDecimal, round3, totals, unitFromAmount, updateCostLine, type CostLine } from "@/lib/calc";
+import { aggregateSales, consumableCost, movingAverage, orderConsumables, profitAfterConsumables, parseDecimal, round3, salesPaymentTotal, totals, unitFromAmount, updateCostLine, type CostLine } from "@/lib/calc";
 import { fmtMoney } from "@/lib/format";
 
 const line = (over: Partial<CostLine> = {}): CostLine => ({ quantity: "", unit_cost: "", amount: "", driver: "amount", ...over });
@@ -117,5 +117,17 @@ describe("money display", () => {
     expect(fmtMoney(850, true)).toBe("850 nghìn đồng");
     expect(fmtMoney(50.8)).toBe("50,8");
     expect(fmtMoney(1234.5)).toBe("1.234,5");
+  });
+});
+
+describe("sales surcharge", () => {
+  it("adds a positive surcharge to the amount due without changing product revenue or profit", () => {
+    const rows = aggregateSales([{ product_id: "smk", quantity: 1, amount: 200, cost_amount: 80 }], () => "SMK");
+    expect(salesPaymentTotal(rows[0]!.revenue, 12.5)).toBe(212.5);
+    expect(totals(rows)).toMatchObject({ revenue: 200, cost: 80, profit: 120 });
+  });
+
+  it("treats a missing surcharge as zero", () => {
+    expect(salesPaymentTotal(200)).toBe(200);
   });
 });

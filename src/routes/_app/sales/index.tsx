@@ -51,7 +51,7 @@ function SalesPage() {
     { key: "vehicle", header: "Tên xe", cell: (r) => r.vehicle_name || <span className="text-muted-foreground">—</span> },
     { key: "products", header: "Sản phẩm", className: "max-w-[220px] truncate", cell: (r) => productNames(r.sales_order_items) },
     { key: "qty", header: "Tổng SL", align: "right", cell: (r) => <span className="num">{fmtNum(r.total_qty)}</span> },
-    { key: "amount", header: `Tổng tiền (${MONEY_UNIT_SHORT})`, align: "right", mobile: "aside", cell: (r) => <span className="num font-semibold">{fmtMoney(r.total_amount)}</span> },
+    { key: "amount", header: `Tổng tiền (${MONEY_UNIT_SHORT})`, align: "right", mobile: "aside", cell: (r) => <span className="num font-semibold">{fmtMoney(r.total_amount + r.surcharge)}</span> },
     { key: "status", header: "Trạng thái", mobile: "aside", cell: (r) => <StatusBadge kind={r.status} /> },
     {
       key: "actions", header: "Thao tác", align: "right",

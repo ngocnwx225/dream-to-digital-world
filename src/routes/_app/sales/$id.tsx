@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Ban, Pencil } from "lucide-react";
+import { ArrowLeft, Ban, Pencil, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, EmptyState, LoadingSkeleton, PageHeader, ReasonDialog, StatusBadge, TableWrap, td, th, theadRow, trHover } from "@/components/app/shared";
@@ -9,6 +9,7 @@ import { useInvalidateAll, useSaleOrder } from "@/lib/data";
 import { profitAfterConsumables, round3 } from "@/lib/calc";
 import { errMsg, fmtDate, fmtDateTime, fmtMoney, fmtNum, fmtPct, fmtUnitCost, MONEY_UNIT, MONEY_UNIT_SHORT } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useBrand } from "@/lib/brand";
 
 export const Route = createFileRoute("/_app/sales/$id")({
   head: () => ({ meta: [{ title: "Chi tiết đơn bán – Chơi Xe-Xe Chơi" }] }),
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_app/sales/$id")({
 function SaleDetailPage() {
   const { id } = Route.useParams();
   const { data: o, isLoading } = useSaleOrder(id);
+  const brand = useBrand();
   const invalidate = useInvalidateAll();
   const [cancelOpen, setCancelOpen] = useState(false);
   const [pending, setPending] = useState(false);
@@ -38,12 +40,15 @@ function SaleDetailPage() {
   // Consumables are an order-level cost: subtracted once here, never spread over the lines.
   const legacy = o.vehicle_count == null;
   const { profit, margin } = profitAfterConsumables(o.total_amount, o.total_cost, o.consumable_total_cost);
+  const totalPayment = round3(o.total_amount + o.surcharge);
 
   return (
     <>
+      <div className="print:hidden">
       <PageHeader title={`Đơn bán ${o.code}`} subtitle={`Ngày bán ${fmtDate(o.order_date)}`}
         actions={<>
           <Button variant="outline" asChild><Link to="/sales"><ArrowLeft className="h-4 w-4" />Danh sách</Link></Button>
+          <Button variant="outline" onClick={() => window.print()}><Printer className="h-4 w-4" />In hóa đơn</Button>
           {o.status === "completed" && <>
             <Button variant="outline" asChild><Link to="/sales/edit/$id" params={{ id }}><Pencil className="h-4 w-4" />Sửa</Link></Button>
             <Button variant="outline" className="text-destructive hover:text-destructive" onClick={() => setCancelOpen(true)}><Ban className="h-4 w-4" />Hủy đơn</Button>
@@ -98,6 +103,8 @@ function SaleDetailPage() {
           </TableWrap>
           <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4 text-sm xl:grid-cols-4">
             <Stat k="Tổng tiền bán" v={fmtMoney(o.total_amount)} strong />
+            {o.surcharge > 0 && <Stat k="Phụ thu / Tip" v={fmtMoney(o.surcharge)} />}
+            <Stat k="Tổng thanh toán" v={fmtMoney(totalPayment)} strong />
             <Stat k="Giá vốn sản phẩm" v={fmtMoney(o.total_cost)} />
             <Stat k={legacy ? "Vật tư tiêu hao (đơn cũ)" : `Vật tư tiêu hao (${fmtNum(o.vehicle_count)} xe)`} v={fmtMoney(o.consumable_total_cost)} />
             <Stat k={`Lợi nhuận${o.total_amount ? ` (${fmtPct(margin)})` : ""}`} v={fmtMoney(profit)} tone="success" />
@@ -109,6 +116,48 @@ function SaleDetailPage() {
       <ReasonDialog open={cancelOpen} onOpenChange={setCancelOpen} pending={pending} onConfirm={(x) => void cancel(x)}
         title={`Hủy đơn bán ${o.code}`}
         description="Hàng sẽ được hoàn lại kho; doanh thu, giá vốn và lợi nhuận sẽ được tính lại. Đơn đã hủy vẫn được lưu trong lịch sử." />
+      </div>
+      <section data-print-bill className="hidden space-y-6 bg-background p-6 text-foreground">
+        <header className="flex items-start justify-between gap-6 border-b border-border pb-5">
+          <div>
+            <p className="text-xl font-bold">{brand.name}</p>
+            {brand.subtitle && <p className="mt-1 text-sm text-muted-foreground">{brand.subtitle}</p>}
+          </div>
+          <div className="text-right">
+            <h1 className="text-xl font-bold">HÓA ĐƠN BÁN HÀNG</h1>
+            <p className="mt-1 text-sm">Mã đơn: {o.code}</p>
+            <p className="text-sm">Ngày bán: {fmtDate(o.order_date)}</p>
+          </div>
+        </header>
+        <dl className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+          <Row k="Khách hàng" v={o.customer_name || "Khách lẻ"} />
+          <Row k="Số điện thoại" v={o.phone || "—"} />
+          <Row k="Biển số xe" v={o.plate || "—"} />
+          <Row k="Tên xe" v={o.vehicle_name || "—"} />
+          {o.note && <Row k="Ghi chú" v={o.note} />}
+        </dl>
+        <table className="w-full border-collapse text-sm">
+          <thead><tr className="border-b border-border text-left">
+            <th className="py-2 pr-3">Sản phẩm</th><th className="py-2 px-3 text-right">SL</th>
+            <th className="py-2 px-3 text-right">Giá bán</th><th className="py-2 pl-3 text-right">Thành tiền</th>
+          </tr></thead>
+          <tbody>{o.sales_order_items.map((i) => (
+            <tr key={i.id} className="border-b border-border">
+              <td className="py-2 pr-3">{i.products?.name} <span className="text-xs text-muted-foreground">{i.products?.code}</span></td>
+              <td className="num py-2 px-3 text-right">{fmtNum(i.quantity)}</td>
+              <td className="num py-2 px-3 text-right">{fmtMoney(i.unit_price)}</td>
+              <td className="num py-2 pl-3 text-right">{fmtMoney(i.amount)}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+        <dl className="ml-auto w-full max-w-sm space-y-2 border-t border-border pt-4 text-sm">
+          <Row k="Tổng tiền bán" v={`${fmtMoney(o.total_amount)} ${MONEY_UNIT}`} />
+          {o.surcharge > 0 && <Row k="Phụ thu / Tip" v={`${fmtMoney(o.surcharge)} ${MONEY_UNIT}`} />}
+          <div className="flex justify-between gap-4 border-t border-border pt-2 text-base font-bold">
+            <dt>Tổng thanh toán</dt><dd className="num text-right">{fmtMoney(totalPayment)} {MONEY_UNIT}</dd>
+          </div>
+        </dl>
+      </section>
     </>
   );
 }

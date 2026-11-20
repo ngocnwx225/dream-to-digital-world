@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toNum, todayISO } from "./format";
+import { salesPaymentTotal } from "./calc";
 
 export type Product = {
   id: string; code: string; name: string; unit: string; sale_price: number;
@@ -163,14 +164,14 @@ export function useSaleItems(from: string, to: string) {
 export type SaleOrderListRow = {
   id: string; code: string; order_date: string; created_at: string; customer_id: string | null; customer_name: string | null;
   phone: string | null; plate: string | null; vehicle_name: string | null; note: string | null; status: DocStatus;
-  total_qty: number; total_amount: number; total_cost: number;
+  total_qty: number; total_amount: number; total_cost: number; surcharge: number;
   /** null = order saved before consumable costs existed (no retroactive charge) */
   vehicle_count: number | null; consumable_unit_cost: number | null; consumable_total_cost: number;
   sales_order_items: { product_id: string; quantity: number; products: { name: string } | null }[];
 };
 
 const SALE_LIST_SELECT =
-  "id, code, order_date, created_at, customer_id, customer_name, phone, plate, vehicle_name, note, status, total_qty, total_amount, total_cost, vehicle_count, consumable_unit_cost, consumable_total_cost, sales_order_items(product_id, quantity, products(name))";
+  "id, code, order_date, created_at, customer_id, customer_name, phone, plate, vehicle_name, note, status, total_qty, total_amount, total_cost, surcharge, vehicle_count, consumable_unit_cost, consumable_total_cost, sales_order_items(product_id, quantity, products(name))";
 
 export function useSales(filter: { from?: string; to?: string; customerId?: string } = {}) {
   return useQuery({
@@ -190,7 +191,7 @@ export function useSales(filter: { from?: string; to?: string; customerId?: stri
 
 function normaliseOrder<T extends Omit<SaleOrderListRow, "sales_order_items">>(o: T): T {
   return {
-    ...nums(o, ["total_qty", "total_amount", "total_cost", "consumable_total_cost"]),
+    ...nums(o, ["total_qty", "total_amount", "total_cost", "surcharge", "consumable_total_cost"]),
     consumable_unit_cost: o.consumable_unit_cost == null ? null : toNum(o.consumable_unit_cost),
   };
 }
@@ -368,7 +369,7 @@ export function useRecentTransactions(limit = 8) {
       const rows: RecentTx[] = [
         ...sales.map((s) => ({
           kind: "sale" as const, id: s.id, code: s.code, date: s.order_date, created_at: s.created_at,
-          customer: s.customer_name, products: productNames(s.sales_order_items), qty: toNum(s.total_qty), amount: toNum(s.total_amount),
+          customer: s.customer_name, products: productNames(s.sales_order_items), qty: toNum(s.total_qty), amount: salesPaymentTotal(toNum(s.total_amount), toNum(s.surcharge)),
         })),
         ...purchases.map((p) => ({
           kind: "purchase" as const, id: p.id, code: p.code, date: p.receipt_date, created_at: p.created_at,

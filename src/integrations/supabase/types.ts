@@ -434,6 +434,7 @@ export type Database = {
           phone: string | null
           plate: string | null
           status: Database["public"]["Enums"]["doc_status"]
+          surcharge: number
           total_amount: number
           total_cost: number
           total_qty: number
@@ -455,6 +456,7 @@ export type Database = {
           phone?: string | null
           plate?: string | null
           status?: Database["public"]["Enums"]["doc_status"]
+          surcharge?: number
           total_amount?: number
           total_cost?: number
           total_qty?: number
@@ -476,6 +478,7 @@ export type Database = {
           phone?: string | null
           plate?: string | null
           status?: Database["public"]["Enums"]["doc_status"]
+          surcharge?: number
           total_amount?: number
           total_cost?: number
           total_qty?: number
@@ -496,6 +499,7 @@ export type Database = {
       settings: {
         Row: {
           brand_color: string | null
+          brand_subtitle: string | null
           consumable_cost_per_vehicle: number
           created_at: string
           default_low_stock: number
@@ -506,6 +510,7 @@ export type Database = {
         }
         Insert: {
           brand_color?: string | null
+          brand_subtitle?: string | null
           consumable_cost_per_vehicle?: number
           created_at?: string
           default_low_stock?: number
@@ -516,6 +521,7 @@ export type Database = {
         }
         Update: {
           brand_color?: string | null
+          brand_subtitle?: string | null
           consumable_cost_per_vehicle?: number
           created_at?: string
           default_low_stock?: number
@@ -592,6 +598,7 @@ export type Database = {
           p_items: Json
           p_note: string
           p_save_customer: boolean
+          p_surcharge?: number
           p_vehicle_count?: number
         }
         Returns: string

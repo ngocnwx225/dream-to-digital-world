@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, DataTable, EmptyState, LoadingSkeleton, MetricCard, PageHeader, StatusBadge, type Column } from "@/components/app/shared";
 import { CustomerFormDialog } from "@/components/app/customer-form-dialog";
 import { productNames, useCustomer, useSales, type Customer, type SaleOrderListRow } from "@/lib/data";
-import { round3 } from "@/lib/calc";
+import { round3, salesPaymentTotal } from "@/lib/calc";
 import { fmtDate, fmtMoney, fmtNum, MONEY_UNIT, MONEY_UNIT_SHORT } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/customers/$id")({
@@ -25,7 +25,7 @@ function CustomerDetailPage() {
   if (!c) return <Card><EmptyState title="Không tìm thấy khách hàng" action={<Button asChild variant="outline"><Link to="/customers">Về danh sách</Link></Button>} /></Card>;
 
   const completed = (sales.data ?? []).filter((s) => s.status === "completed");
-  const spent = round3(completed.reduce((s, o) => s + o.total_amount, 0));
+  const spent = round3(completed.reduce((s, o) => s + salesPaymentTotal(o.total_amount, o.surcharge), 0));
   const last = completed[0]?.order_date;
 
   const columns: Column<SaleOrderListRow>[] = [
@@ -34,7 +34,7 @@ function CustomerDetailPage() {
     { key: "vehicle", header: "Xe", cell: (r) => [r.vehicle_name, r.plate].filter(Boolean).join(" · ") || <span className="text-muted-foreground">—</span> },
     { key: "products", header: "Sản phẩm", className: "max-w-[240px] truncate", cell: (r) => productNames(r.sales_order_items, 3) },
     { key: "qty", header: "SL", align: "right", cell: (r) => <span className="num">{fmtNum(r.total_qty)}</span> },
-    { key: "amount", header: `Tổng tiền (${MONEY_UNIT_SHORT})`, align: "right", mobile: "aside", cell: (r) => <span className="num font-semibold">{fmtMoney(r.total_amount)}</span> },
+    { key: "amount", header: `Tổng tiền (${MONEY_UNIT_SHORT})`, align: "right", mobile: "aside", cell: (r) => <span className="num font-semibold">{fmtMoney(salesPaymentTotal(r.total_amount, r.surcharge))}</span> },
     { key: "status", header: "Trạng thái", mobile: "aside", cell: (r) => <StatusBadge kind={r.status} /> },
   ];
 

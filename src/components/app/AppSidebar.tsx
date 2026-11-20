@@ -8,10 +8,10 @@ import { useBrand } from "@/lib/brand";
 
 const groups = [
   { label: "Tổng quan", items: [{ title: "Tổng quan", url: "/dashboard", icon: Home }] },
-  { label: "Giao dịch", items: [{ title: "Mua vào", url: "/purchases", icon: Truck }, { title: "Bán ra", url: "/sales", icon: ShoppingCart }] },
-  { label: "Quản lý", items: [{ title: "Sản phẩm", url: "/products", icon: Package }, { title: "Tồn kho", url: "/inventory", icon: Warehouse }, { title: "Khách hàng", url: "/customers", icon: Users }] },
+  { label: "Kho hàng", items: [{ title: "Mua vào", url: "/purchases", icon: Truck }, { title: "Sản phẩm", url: "/products", icon: Package }, { title: "Tồn kho", url: "/inventory", icon: Warehouse }] },
+  { label: "Bán hàng", items: [{ title: "Bán ra", url: "/sales", icon: ShoppingCart }, { title: "Khách hàng", url: "/customers", icon: Users }] },
   { label: "Thống kê", items: [{ title: "Doanh thu & Lợi nhuận", url: "/reports", icon: BarChart3 }] },
-  { label: "Hệ thống", items: [{ title: "Cài đặt", url: "/settings", icon: Settings }] },
+  { label: "Cài đặt", items: [{ title: "Cài đặt", url: "/settings", icon: Settings }] },
 ] as const;
 
 export function AppSidebar() {
